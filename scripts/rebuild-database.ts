@@ -24,7 +24,7 @@ async function rebuildDatabase() {
   
   try {
     // 读取重建脚本
-    const rebuildScript = readFileSync(join(__dirname, 'rebuild-database.sql'), 'utf8')
+    const rebuildScript = readFileSync(join(__dirname, '../database/rebuild-database.sql'), 'utf8')
     const schemaScript = readFileSync(join(__dirname, '..', 'database', 'schema.sql'), 'utf8')
     
     console.log('\n📋 重建步骤：')
