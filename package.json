@@ -16,7 +16,6 @@
     "supabase:types": "supabase gen types typescript --project-id klfiwvrxfwvivtghlcnk --schema public > lib/supabase-types.ts"
   },
   "dependencies": {
-    "@next/font": "14.0.4",
     "@supabase/supabase-js": "^2.57.0",
     "autoprefixer": "^10.4.16",
     "clsx": "^2.0.0",
