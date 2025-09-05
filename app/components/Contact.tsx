@@ -2,8 +2,24 @@
 
 import { useState } from 'react';
 
+interface FormData {
+  name: string;
+  email: string;
+  phone: string;
+  company: string;
+  service: string;
+  message: string;
+}
+
+interface FormErrors {
+  name?: string;
+  email?: string;
+  phone?: string;
+  message?: string;
+}
+
 const Contact = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     phone: '',
@@ -12,22 +28,94 @@ const Contact = () => {
     message: ''
   });
 
+  const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  // 验证函数
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+
+    // 姓名验证
+    if (!formData.name.trim()) {
+      newErrors.name = '请输入您的姓名';
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = '姓名至少需要2个字符';
+    }
+
+    // 邮箱验证
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim()) {
+      newErrors.email = '请输入您的邮箱';
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = '请输入有效的邮箱地址';
+    }
+
+    // 电话验证（可选，但如果填写需要格式正确）
+    if (formData.phone.trim()) {
+      const phoneRegex = /^1[3-9]\d{9}$/;
+      if (!phoneRegex.test(formData.phone.replace(/[\s-]/g, ''))) {
+        newErrors.phone = '请输入有效的手机号码';
+      }
+    }
+
+    // 消息验证
+    if (!formData.message.trim()) {
+      newErrors.message = '请描述您的项目需求';
+    } else if (formData.message.trim().length < 10) {
+      newErrors.message = '项目描述至少需要10个字符';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+
+    // 清除对应字段的错误信息
+    if (errors[name as keyof FormErrors]) {
+      setErrors({
+        ...errors,
+        [name]: undefined
+      });
+    }
+
+    // 重置提交状态
+    if (submitStatus !== 'idle') {
+      setSubmitStatus('idle');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     
-    // 模拟表单提交
-    setTimeout(() => {
-      alert('感谢您的咨询！我们会在24小时内与您联系。');
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    
+    try {
+      // 模拟API调用
+      await new Promise((resolve, reject) => {
+        setTimeout(() => {
+          // 模拟90%成功率
+          if (Math.random() > 0.1) {
+            resolve('success');
+          } else {
+            reject(new Error('网络错误，请稍后重试'));
+          }
+        }, 2000);
+      });
+
+      // 成功处理
+      setSubmitStatus('success');
       setFormData({
         name: '',
         email: '',
@@ -36,8 +124,19 @@ const Contact = () => {
         service: '',
         message: ''
       });
+      setErrors({});
+      
+      // 3秒后重置状态
+      setTimeout(() => {
+        setSubmitStatus('idle');
+      }, 3000);
+      
+    } catch (error) {
+      setSubmitStatus('error');
+      console.error('表单提交失败:', error);
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   const contactInfo = [
@@ -156,6 +255,29 @@ const Contact = () => {
               发送消息
             </h3>
             
+            {/* 状态提示 */}
+            {submitStatus === 'success' && (
+              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center">
+                  <svg className="h-5 w-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-green-800 font-medium">感谢您的咨询！我们会在24小时内与您联系。</p>
+                </div>
+              </div>
+            )}
+            
+            {submitStatus === 'error' && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center">
+                  <svg className="h-5 w-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-red-800 font-medium">提交失败，请检查网络连接后重试。</p>
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -169,9 +291,14 @@ const Contact = () => {
                     required
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      errors.name ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                    }`}
                     placeholder="请输入您的姓名"
                   />
+                  {errors.name && (
+                    <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -184,9 +311,14 @@ const Contact = () => {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      errors.email ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                    }`}
                     placeholder="请输入您的邮箱"
                   />
+                  {errors.email && (
+                    <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                  )}
                 </div>
               </div>
               
@@ -201,9 +333,14 @@ const Contact = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      errors.phone ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                    }`}
                     placeholder="请输入您的电话"
                   />
+                  {errors.phone && (
+                    <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-2">
@@ -252,9 +389,14 @@ const Contact = () => {
                   rows={4}
                   value={formData.message}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.message ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                  }`}
                   placeholder="请详细描述您的项目需求..."
                 ></textarea>
+                {errors.message && (
+                  <p className="mt-1 text-sm text-red-600">{errors.message}</p>
+                )}
               </div>
               
               <button

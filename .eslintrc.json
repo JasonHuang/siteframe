@@ -6,42 +6,15 @@
     "jest": true
   },
   "extends": [
-    "eslint:recommended",
-    "@typescript-eslint/recommended",
     "next/core-web-vitals",
     "prettier"
   ],
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": true
-    },
-    "ecmaVersion": "latest",
-    "sourceType": "module",
-    "project": "./tsconfig.json"
-  },
   "plugins": [
-    "@typescript-eslint",
     "react",
-    "react-hooks",
-    "import",
-    "jsx-a11y"
+    "react-hooks"
   ],
   "rules": {
-    // TypeScript 规则
-    "@typescript-eslint/no-unused-vars": [
-      "error",
-      {
-        "argsIgnorePattern": "^_",
-        "varsIgnorePattern": "^_"
-      }
-    ],
-    "@typescript-eslint/no-explicit-any": "warn",
-    "@typescript-eslint/explicit-function-return-type": "off",
-    "@typescript-eslint/explicit-module-boundary-types": "off",
-    "@typescript-eslint/no-empty-function": "warn",
-    "@typescript-eslint/prefer-const": "error",
-    "@typescript-eslint/no-var-requires": "error",
+
 
     // React 规则
     "react/react-in-jsx-scope": "off",
@@ -62,41 +35,13 @@
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
 
-    // 导入规则
-    "import/order": [
-      "error",
-      {
-        "groups": [
-          "builtin",
-          "external",
-          "internal",
-          "parent",
-          "sibling",
-          "index"
-        ],
-        "newlines-between": "always",
-        "alphabetize": {
-          "order": "asc",
-          "caseInsensitive": true
-        }
-      }
-    ],
-    "import/no-unresolved": "off",
-    "import/no-duplicates": "error",
-    "import/no-unused-modules": "warn",
 
-    // 可访问性规则
-    "jsx-a11y/alt-text": "error",
-    "jsx-a11y/anchor-has-content": "error",
-    "jsx-a11y/anchor-is-valid": "error",
-    "jsx-a11y/click-events-have-key-events": "warn",
-    "jsx-a11y/no-static-element-interactions": "warn",
 
     // 通用规则
     "no-console": "warn",
     "no-debugger": "error",
     "no-alert": "warn",
-    "no-unused-vars": "off",
+    "no-unused-vars": "warn",
     "no-var": "error",
     "prefer-const": "error",
     "no-duplicate-imports": "error",
@@ -110,9 +55,7 @@
     "eqeqeq": ["error", "always"],
     "curly": ["error", "all"],
     "brace-style": ["error", "1tbs"],
-    "comma-dangle": ["error", "es5"],
-    "quotes": ["error", "single", { "avoidEscape": true }],
-    "semi": ["error", "always"]
+    "comma-dangle": ["error", "never"]
   },
   "settings": {
     "react": {

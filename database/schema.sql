@@ -146,88 +146,149 @@ ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE content_tags ENABLE ROW LEVEL SECURITY;
 
 -- 创建基本的 RLS 策略
--- 用户表：用户只能查看和更新自己的信息
+-- 用户表：简化策略避免循环引用
 CREATE POLICY "Users can view own profile" ON users
     FOR SELECT USING (auth.uid()::text = id::text);
 
 CREATE POLICY "Users can update own profile" ON users
     FOR UPDATE USING (auth.uid()::text = id::text);
 
--- 分类表：所有人可以查看，只有管理员可以修改
+CREATE POLICY "Users can insert own profile" ON users
+    FOR INSERT WITH CHECK (
+        auth.uid()::text = id::text
+        OR NOT EXISTS (SELECT 1 FROM users) -- 允许第一个用户注册
+    );
+
+-- 分类表：所有人可以查看，管理员可以修改
 CREATE POLICY "Anyone can view categories" ON categories
     FOR SELECT USING (true);
 
-CREATE POLICY "Only admins can modify categories" ON categories
-    FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM users 
-            WHERE id::text = auth.uid()::text 
-            AND role = 'ADMIN'
-        )
+CREATE POLICY "Admins can insert categories" ON categories
+    FOR INSERT WITH CHECK (
+        (auth.jwt() -> 'user_metadata' ->> 'role') = 'ADMIN'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'ADMIN'
     );
 
--- 标签表：所有人可以查看，只有管理员和编辑可以修改
+CREATE POLICY "Admins can update categories" ON categories
+    FOR UPDATE USING (
+        (auth.jwt() -> 'user_metadata' ->> 'role') = 'ADMIN'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'ADMIN'
+    );
+
+CREATE POLICY "Admins can delete categories" ON categories
+    FOR DELETE USING (
+        (auth.jwt() -> 'user_metadata' ->> 'role') = 'ADMIN'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'ADMIN'
+    );
+
+-- 标签表：所有人可以查看，管理员和编辑可以修改
 CREATE POLICY "Anyone can view tags" ON tags
     FOR SELECT USING (true);
 
-CREATE POLICY "Editors and admins can modify tags" ON tags
-    FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM users 
-            WHERE id::text = auth.uid()::text 
-            AND role IN ('ADMIN', 'EDITOR')
-        )
+CREATE POLICY "Editors can insert tags" ON tags
+    FOR INSERT WITH CHECK (
+        (auth.jwt() -> 'user_metadata' ->> 'role') IN ('ADMIN', 'EDITOR')
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') IN ('ADMIN', 'EDITOR')
+    );
+
+CREATE POLICY "Editors can update tags" ON tags
+    FOR UPDATE USING (
+        (auth.jwt() -> 'user_metadata' ->> 'role') IN ('ADMIN', 'EDITOR')
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') IN ('ADMIN', 'EDITOR')
+    );
+
+CREATE POLICY "Editors can delete tags" ON tags
+    FOR DELETE USING (
+        (auth.jwt() -> 'user_metadata' ->> 'role') IN ('ADMIN', 'EDITOR')
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') IN ('ADMIN', 'EDITOR')
     );
 
 -- 内容表：已发布内容所有人可以查看，作者可以管理自己的内容
 CREATE POLICY "Anyone can view published content" ON content
-    FOR SELECT USING (status = 'PUBLISHED');
+    FOR SELECT USING (status = 'PUBLISHED' OR author_id::text = auth.uid()::text);
 
-CREATE POLICY "Authors can manage own content" ON content
-    FOR ALL USING (author_id::text = auth.uid()::text);
+CREATE POLICY "Authors can insert own content" ON content
+    FOR INSERT WITH CHECK (author_id::text = auth.uid()::text);
+
+CREATE POLICY "Authors can update own content" ON content
+    FOR UPDATE USING (author_id::text = auth.uid()::text);
+
+CREATE POLICY "Authors can delete own content" ON content
+    FOR DELETE USING (author_id::text = auth.uid()::text);
 
 CREATE POLICY "Admins can manage all content" ON content
     FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM users 
-            WHERE id::text = auth.uid()::text 
-            AND role = 'ADMIN'
-        )
+        (auth.jwt() -> 'user_metadata' ->> 'role') = 'ADMIN'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'ADMIN'
     );
 
 -- 媒体表：上传者可以管理自己的媒体文件
 CREATE POLICY "Users can view all media" ON media
     FOR SELECT USING (true);
 
-CREATE POLICY "Users can manage own media" ON media
-    FOR ALL USING (uploader_id::text = auth.uid()::text);
+CREATE POLICY "Users can insert own media" ON media
+    FOR INSERT WITH CHECK (uploader_id::text = auth.uid()::text);
+
+CREATE POLICY "Users can update own media" ON media
+    FOR UPDATE USING (uploader_id::text = auth.uid()::text);
+
+CREATE POLICY "Users can delete own media" ON media
+    FOR DELETE USING (uploader_id::text = auth.uid()::text);
+
+CREATE POLICY "Admins can manage all media" ON media
+    FOR ALL USING (
+        (auth.jwt() -> 'user_metadata' ->> 'role') = 'ADMIN'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'ADMIN'
+    );
 
 -- 设置表：只有管理员可以访问
-CREATE POLICY "Only admins can access settings" ON settings
-    FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM users 
-            WHERE id::text = auth.uid()::text 
-            AND role = 'ADMIN'
-        )
+CREATE POLICY "Admins can view settings" ON settings
+    FOR SELECT USING (
+        (auth.jwt() -> 'user_metadata' ->> 'role') = 'ADMIN'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'ADMIN'
+    );
+
+CREATE POLICY "Admins can insert settings" ON settings
+    FOR INSERT WITH CHECK (
+        (auth.jwt() -> 'user_metadata' ->> 'role') = 'ADMIN'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'ADMIN'
+    );
+
+CREATE POLICY "Admins can update settings" ON settings
+    FOR UPDATE USING (
+        (auth.jwt() -> 'user_metadata' ->> 'role') = 'ADMIN'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'ADMIN'
+    );
+
+CREATE POLICY "Admins can delete settings" ON settings
+    FOR DELETE USING (
+        (auth.jwt() -> 'user_metadata' ->> 'role') = 'ADMIN'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'ADMIN'
     );
 
 -- 内容标签关联表：跟随内容表的权限
-CREATE POLICY "Content tags follow content permissions" ON content_tags
+CREATE POLICY "Anyone can view content tags" ON content_tags
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM content 
+            WHERE content.id = content_tags.content_id
+            AND (content.status = 'PUBLISHED' OR content.author_id::text = auth.uid()::text)
+        )
+    );
+
+CREATE POLICY "Authors can manage own content tags" ON content_tags
     FOR ALL USING (
         EXISTS (
             SELECT 1 FROM content 
             WHERE content.id = content_tags.content_id
-            AND (
-                content.status = 'PUBLISHED' 
-                OR content.author_id::text = auth.uid()::text
-                OR EXISTS (
-                    SELECT 1 FROM users 
-                    WHERE users.id::text = auth.uid()::text 
-                    AND users.role = 'ADMIN'
-                )
-            )
+            AND content.author_id::text = auth.uid()::text
         )
+    );
+
+CREATE POLICY "Admins can manage all content tags" ON content_tags
+    FOR ALL USING (
+        (auth.jwt() -> 'user_metadata' ->> 'role') = 'ADMIN'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'ADMIN'
     );
 
 -- 插入初始数据

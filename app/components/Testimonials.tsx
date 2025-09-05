@@ -1,9 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const Testimonials = () => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const testimonials = [
     {
@@ -65,12 +68,53 @@ const Testimonials = () => {
     { number: '24/7', label: '技术支持' }
   ];
 
+  // 自动轮播逻辑
+  useEffect(() => {
+    if (isAutoPlaying && !isPaused) {
+      intervalRef.current = setInterval(() => {
+        setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
+      }, 4000); // 每4秒切换一次
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isAutoPlaying, isPaused, testimonials.length]);
+
+  // 清理定时器
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
   const nextTestimonial = () => {
     setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
   };
 
   const prevTestimonial = () => {
     setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  };
+
+  const toggleAutoPlay = () => {
+    setIsAutoPlaying(!isAutoPlaying);
+  };
+
+  const handleMouseEnter = () => {
+    setIsPaused(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsPaused(false);
   };
 
   const renderStars = (rating: number) => {
@@ -117,7 +161,11 @@ const Testimonials = () => {
         </div>
 
         {/* Main Testimonial */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 lg:p-12 mb-12">
+        <div 
+          className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 lg:p-12 mb-12 relative"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8">
               <div className="flex justify-center mb-4">
@@ -164,11 +212,16 @@ const Testimonials = () => {
                   <button
                     key={index}
                     onClick={() => setActiveTestimonial(index)}
-                    className={`h-3 w-3 rounded-full transition-colors ${
+                    className={`h-3 w-3 rounded-full transition-colors relative ${
                       index === activeTestimonial ? 'bg-blue-600' : 'bg-gray-300'
                     }`}
                     aria-label={`Go to testimonial ${index + 1}`}
-                  />
+                  >
+                    {/* 进度指示器 */}
+                    {index === activeTestimonial && isAutoPlaying && !isPaused && (
+                      <div className="absolute inset-0 rounded-full border-2 border-blue-600 animate-pulse" />
+                    )}
+                  </button>
                 ))}
               </div>
               
@@ -180,6 +233,31 @@ const Testimonials = () => {
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
+              </button>
+            </div>
+            
+            {/* 自动播放控制 */}
+            <div className="flex items-center justify-center mt-4">
+              <button
+                onClick={toggleAutoPlay}
+                className="flex items-center space-x-2 text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                aria-label={isAutoPlaying ? 'Pause autoplay' : 'Start autoplay'}
+              >
+                {isAutoPlaying ? (
+                  <>
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>暂停自动播放</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h1m4 0h1m6-7a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>开始自动播放</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
