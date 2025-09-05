@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+build/
+dist/
+out/
+.next/
+.nuxt/
+
+# Coverage
+coverage/
+
+# Environment files
+.env*
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Generated files
+*.min.js
+*.min.css
+
+# Config files
+next.config.js
+tailwind.config.js
+postcss.config.js
+
+# Public assets
+public/
+
+# Storybook
+.storybook/
+storybook-static/
+
+# Testing
+.nyc_output/
+
+# Logs
+*.log
+logs/
+
+# Cache
+.cache/
+.parcel-cache/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

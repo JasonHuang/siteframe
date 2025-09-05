@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+build/
+dist/
+out/
+.next/
+.nuxt/
+
+# Coverage
+coverage/
+
+# Logs
+*.log
+logs/
+
+# Environment files
+.env*
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Generated files
+*.min.js
+*.min.css
+
+# Documentation
+CHANGELOG.md
+
+# Config files that should maintain their format
+.gitignore
+.dockerignore
+
+# Binary files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.pdf
+*.zip
+*.tar.gz
+
+# Database files
+*.sqlite
+*.db
