@@ -52,6 +52,16 @@ const nextConfig = {
       },
     ]
   },
+  // Webpack配置优化
+  webpack: (config, { dev, isServer }) => {
+    // 优化缓存配置以解决大字符串序列化警告
+    if (config.cache && config.cache.type === 'filesystem') {
+      config.cache.compression = 'gzip';
+      config.cache.maxMemoryGenerations = 1;
+    }
+    
+    return config;
+  },
 }
 
 module.exports = nextConfig
