@@ -162,14 +162,13 @@ export class ModernThemeEngine extends EventEmitter {
    */
   private async loadFromLocal(path: string): Promise<ModernTheme> {
     try {
-      // 移除开头的斜杠并获取主题名称
-      const cleanPath = path.replace(/^\//, '');
-      const themeName = cleanPath.startsWith('themes/') 
-        ? cleanPath.replace('themes/', '') 
-        : cleanPath.split('/').pop() || cleanPath;
+      // 提取主题名称
+      const themeName = this.extractThemeName(path);
       
-      // 使用静态导入映射来避免 webpack 警告
-      let themeModule;
+      // 使用条件导入来避免 webpack 警告
+      let themeModule: any;
+      
+      // 所有主题都使用静态导入以避免 webpack 警告
       switch (themeName) {
         case 'original-homepage-theme':
           themeModule = await import('@/themes/original-homepage-theme');
@@ -184,8 +183,7 @@ export class ModernThemeEngine extends EventEmitter {
           themeModule = await import('@/themes/test-auto-theme');
           break;
         default:
-           // 对于未知主题，抛出错误而不是使用动态导入
-           throw new Error(`Unknown theme: ${themeName}. Please add it to the static import list.`);
+          throw new Error(`Theme '${themeName}' is not registered. Available themes: original-homepage-theme, minimal-theme, modern-blog-theme, test-auto-theme`);
       }
       
       const theme = themeModule.default || themeModule;
@@ -198,8 +196,49 @@ export class ModernThemeEngine extends EventEmitter {
       return theme;
     } catch (error) {
       console.error(`Failed to load theme from local path: ${path}`, error);
-      throw new Error(`Failed to load theme from local path: ${path}`);
+      throw new Error(`Failed to load theme from path: ${path}. Make sure the theme exists in the themes directory.`);
     }
+  }
+
+  /**
+   * 提取主题名称
+   */
+  private extractThemeName(path: string): string {
+    const cleanPath = path.replace(/^\//, '');
+    
+    if (cleanPath.startsWith('themes/')) {
+      const themeName = cleanPath.replace('themes/', '').split('/')[0];
+      return themeName || 'default';
+    }
+    
+    if (!cleanPath.includes('/')) {
+      return cleanPath || 'default';
+    }
+    
+    const parts = cleanPath.split('/');
+    const lastPart = parts[parts.length - 1];
+    return lastPart || cleanPath || 'default';
+  }
+
+  /**
+   * 构建主题路径
+   */
+  private buildThemePath(path: string): string {
+    // 移除开头的斜杠
+    const cleanPath = path.replace(/^\//, '');
+    
+    // 如果路径已经包含完整的主题路径
+    if (cleanPath.startsWith('themes/')) {
+      return `@/${cleanPath}`;
+    }
+    
+    // 如果只是主题名称，构建完整路径
+    if (!cleanPath.includes('/')) {
+      return `@/themes/${cleanPath}`;
+    }
+    
+    // 默认情况
+    return `@/${cleanPath}`;
   }
 
   /**
