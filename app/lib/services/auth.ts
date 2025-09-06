@@ -421,3 +421,80 @@ export const checkPermission = async (permission: string): Promise<boolean> => {
     return false;
   }
 };
+
+// API 路由专用的权限检查函数
+export const checkApiPermission = async (request: Request, permission: string): Promise<boolean> => {
+  try {
+    // 从请求头获取 Authorization token
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('❌ 缺少认证头或格式错误');
+      return false;
+    }
+
+    const token = authHeader.substring(7); // 移除 'Bearer ' 前缀
+    
+    // 使用服务角色密钥创建 Supabase 客户端来验证 JWT
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+    
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
+
+    // 验证 JWT token
+    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+    
+    if (error || !user) {
+      console.log('❌ JWT token 验证失败:', error?.message);
+      return false;
+    }
+
+    console.log('✅ JWT token 验证成功，用户:', user.email);
+
+    // 获取用户资料
+    const { data: userProfile, error: profileError } = await supabaseAdmin
+      .from('users')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError || !userProfile) {
+      console.log('❌ 获取用户资料失败:', profileError?.message);
+      return false;
+    }
+
+    console.log('✅ 用户资料:', { email: userProfile.email, role: userProfile.role });
+
+    // 检查权限
+    const role = userProfile.role;
+    let hasPermission = false;
+    
+    switch (role) {
+      case 'ADMIN':
+        hasPermission = true;
+        break;
+      case 'EDITOR':
+        hasPermission = !permission.includes('users:') && !permission.includes('settings:');
+        break;
+      case 'AUTHOR':
+        hasPermission = permission.includes('content:read') || permission.includes('content:write') || permission.includes('media:');
+        break;
+      case 'USER':
+        hasPermission = permission.includes('content:read') || permission.includes('media:read');
+        break;
+      default:
+        hasPermission = false;
+    }
+
+    console.log(`✅ 权限检查结果: ${permission} = ${hasPermission}`);
+    return hasPermission;
+  } catch (error) {
+    console.error('❌ API权限检查错误:', error);
+    return false;
+  }
+};

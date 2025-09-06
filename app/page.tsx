@@ -2,19 +2,22 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Header from './components/Header';
-import HeroSection from './components/HeroSection';
-import Features from './components/Features';
-import About from './components/About';
-import Services from './components/Services';
-import Testimonials from './components/Testimonials';
-import Contact from './components/Contact';
-import Footer from './components/Footer';
+import { useThemeComponent } from './lib/components/theme-provider'
 import PerformanceMonitor, { PerformanceOptimizationTips } from './components/PerformanceMonitor';
 import { checkAdminExists } from './lib/services/auth'
 
 export default function Home() {
   const router = useRouter()
+  
+  // 获取主题组件
+  const Header = useThemeComponent('block', 'Header')
+  const HeroSection = useThemeComponent('block', 'HeroSection')
+  const Features = useThemeComponent('block', 'Features')
+  const About = useThemeComponent('block', 'About')
+  const Services = useThemeComponent('block', 'Services')
+  const Testimonials = useThemeComponent('block', 'Testimonials')
+  const Contact = useThemeComponent('block', 'Contact')
+  const Footer = useThemeComponent('block', 'Footer')
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -39,28 +42,28 @@ export default function Home() {
       <PerformanceOptimizationTips />
       
       {/* Header Section */}
-      <Header />
+      {Header && <Header />}
       
       {/* Hero Section */}
-      <HeroSection />
+      {HeroSection && <HeroSection />}
       
       {/* Features Section */}
-      <Features />
+      {Features && <Features />}
       
       {/* About Section */}
-      <About />
+      {About && <About />}
       
       {/* Services Section */}
-      <Services />
+      {Services && <Services />}
       
       {/* Testimonials Section */}
-      <Testimonials />
+      {Testimonials && <Testimonials />}
       
       {/* Contact Section */}
-      <Contact />
+      {Contact && <Contact />}
       
       {/* Footer Section */}
-      <Footer />
+      {Footer && <Footer />}
     </div>
   );
 }

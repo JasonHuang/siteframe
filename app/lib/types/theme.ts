@@ -8,8 +8,12 @@ export interface Theme {
   name: string;
   display_name: string;
   description?: string;
+  version?: string;
+  author?: string;
+  preview_image?: string;
   is_active: boolean;
-  is_default: boolean;
+  is_system?: boolean;
+  config?: ThemeConfig;
   created_at: string;
   updated_at: string;
 }
@@ -130,8 +134,11 @@ export interface CreateThemeInput {
   name: string;
   display_name: string;
   description?: string;
+  version?: string;
+  author?: string;
+  preview_image?: string;
   is_active?: boolean;
-  is_default?: boolean;
+  is_system?: boolean;
   config?: ThemeConfig;
 }
 
@@ -142,7 +149,6 @@ export interface UpdateThemeInput {
   display_name?: string;
   description?: string;
   is_active?: boolean;
-  is_default?: boolean;
   config?: Partial<ThemeConfig>;
 }
 

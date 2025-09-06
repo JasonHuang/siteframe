@@ -142,9 +142,8 @@ export class ModernThemeEngine extends EventEmitter {
     const packagePath = version ? `${packageName}@${version}` : packageName;
     
     try {
-      // 在生产环境中，这里应该是动态导入已安装的包
-      const themeModule = await import(packagePath);
-      return themeModule.default || themeModule;
+      // 目前暂不支持动态 NPM 包加载，避免构建警告
+      throw new Error(`NPM package loading not implemented yet: ${packagePath}`);
     } catch (error) {
       throw new Error(`Failed to load theme from npm package: ${packagePath}`);
     }
@@ -163,8 +162,34 @@ export class ModernThemeEngine extends EventEmitter {
    */
   private async loadFromLocal(path: string): Promise<ModernTheme> {
     try {
-      const themeModule = await import(path);
-      return themeModule.default || themeModule;
+      // 使用静态导入映射来避免动态导入警告
+      const themeModules: Record<string, () => Promise<any>> = {
+        '/themes/default': () => import('../../themes/minimal-theme'),
+        '/themes/modern-blog-theme': () => import('../../themes/modern-blog-theme'),
+        '/themes/original-homepage-theme': () => import('../../themes/original-homepage-theme'),
+        '/themes/minimal-theme': () => import('../../themes/minimal-theme'),
+        '/themes/test-auto-theme': () => import('../../themes/test-auto-theme'),
+        'modern-blog-theme': () => import('../../themes/modern-blog-theme'),
+        'minimal-theme': () => import('../../themes/minimal-theme'),
+        'original-homepage-theme': () => import('../../themes/original-homepage-theme'),
+        'test-auto-theme': () => import('../../themes/test-auto-theme'),
+        'default': () => import('../../themes/minimal-theme')
+      };
+      
+      const loader = themeModules[path];
+      if (!loader) {
+        throw new Error(`Theme not found: ${path}`);
+      }
+      
+      const themeModule = await loader();
+      const theme = themeModule.default || themeModule;
+      
+      // 如果主题是一个函数（如 loadTheme），则调用它
+      if (typeof theme === 'function') {
+        return await theme();
+      }
+      
+      return theme;
     } catch (error) {
       throw new Error(`Failed to load theme from local path: ${path}`);
     }
@@ -264,7 +289,7 @@ export class ModernThemeEngine extends EventEmitter {
    */
   private async applyTheme(): Promise<void> {
     if (!this.currentTheme || !this.config) return;
-
+    
     // 1. 应用样式
     await this.applyStyles();
     

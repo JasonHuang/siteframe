@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { 
   Theme, 
   ThemeSetting, 
@@ -15,10 +16,10 @@ import type { ApiResponse, PaginatedResponse, PaginationParams } from '../types/
  * 主题管理服务
  */
 export class ThemeService {
-  private supabase;
+  private supabase: SupabaseClient;
 
-  constructor() {
-    this.supabase = supabase;
+  constructor(supabaseClient?: SupabaseClient) {
+    this.supabase = supabaseClient || supabase;
   }
 
   /**
@@ -92,10 +93,14 @@ export class ThemeService {
         .from('themes')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         return { error: error.message };
+      }
+
+      if (!data) {
+        return { error: '主题不存在' };
       }
 
       return { data };
@@ -109,18 +114,32 @@ export class ThemeService {
    */
   async getThemeByName(name: string): Promise<ApiResponse<Theme>> {
     try {
+      console.log(`🔍 [ThemeService] 查询主题: ${name}`);
+      
       const { data, error } = await this.supabase
         .from('themes')
         .select('*')
         .eq('name', name)
-        .single();
+        .maybeSingle();
+
+      console.log(`🔍 [ThemeService] Supabase查询结果:`);
+      console.log(`  - error:`, error);
+      console.log(`  - data:`, data);
 
       if (error) {
+        console.error(`❌ [ThemeService] 查询错误:`, error);
         return { error: error.message };
       }
 
+      if (!data) {
+        console.log(`ℹ️ [ThemeService] 主题不存在: ${name}`);
+        return { error: '主题不存在' };
+      }
+
+      console.log(`✅ [ThemeService] 查询成功:`, data);
       return { data };
     } catch (error) {
+      console.error(`❌ [ThemeService] 异常错误:`, error);
       return { error: '获取主题详情失败' };
     }
   }
@@ -134,10 +153,14 @@ export class ThemeService {
         .from('themes')
         .select('*')
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
 
       if (error) {
         return { error: error.message };
+      }
+
+      if (!data) {
+        return { error: '没有激活的主题' };
       }
 
       return { data };
@@ -151,41 +174,51 @@ export class ThemeService {
    */
   async createTheme(input: CreateThemeInput): Promise<ApiResponse<Theme>> {
     try {
-      // 如果设置为默认主题，先取消其他默认主题
-      if (input.is_default) {
-        await this.supabase
-          .from('themes')
-          .update({ is_default: false })
-          .eq('is_default', true);
-      }
-
+      console.log(`💾 [ThemeService] 创建主题:`, JSON.stringify(input, null, 2));
+      
       // 如果设置为激活主题，先取消其他激活主题
       if (input.is_active) {
-        await this.supabase
+        console.log(`🔄 [ThemeService] 取消其他激活主题`);
+        const deactivateResult = await this.supabase
           .from('themes')
           .update({ is_active: false })
           .eq('is_active', true);
+        console.log(`🔄 [ThemeService] 取消激活结果:`, deactivateResult);
       }
+
+      const insertData = {
+        name: input.name,
+        display_name: input.display_name,
+        description: input.description,
+        version: input.version,
+        author: input.author,
+        preview_image: input.preview_image,
+        is_active: input.is_active || false,
+        is_system: input.is_system || false,
+        config: input.config || {}
+      };
+      
+      console.log(`💾 [ThemeService] 插入数据:`, JSON.stringify(insertData, null, 2));
 
       const { data, error } = await this.supabase
         .from('themes')
-        .insert({
-          name: input.name,
-          display_name: input.display_name,
-          description: input.description,
-          is_active: input.is_active || false,
-          is_default: input.is_default || false,
-          config: input.config || {}
-        })
+        .insert(insertData)
         .select()
         .single();
 
+      console.log(`💾 [ThemeService] 插入结果:`);
+      console.log(`  - error:`, error);
+      console.log(`  - data:`, data);
+
       if (error) {
+        console.error(`❌ [ThemeService] 创建错误:`, error);
         return { error: error.message };
       }
 
+      console.log(`✅ [ThemeService] 创建成功:`, data);
       return { data, message: '主题创建成功' };
     } catch (error) {
+      console.error(`❌ [ThemeService] 异常错误:`, error);
       return { error: '创建主题失败' };
     }
   }
@@ -195,15 +228,6 @@ export class ThemeService {
    */
   async updateTheme(id: string, input: UpdateThemeInput): Promise<ApiResponse<Theme>> {
     try {
-      // 如果设置为默认主题，先取消其他默认主题
-      if (input.is_default) {
-        await this.supabase
-          .from('themes')
-          .update({ is_default: false })
-          .eq('is_default', true)
-          .neq('id', id);
-      }
-
       // 如果设置为激活主题，先取消其他激活主题
       if (input.is_active) {
         await this.supabase
@@ -236,18 +260,26 @@ export class ThemeService {
   async deleteTheme(id: string): Promise<ThemeOperationResult> {
     try {
       // 检查是否为系统主题
-      const { data: theme } = await this.supabase
+      const { data: theme, error: fetchError } = await this.supabase
         .from('themes')
-        .select('is_system, is_active, is_default')
+        .select('is_system, is_active')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
-      if (theme?.is_system) {
+      if (fetchError) {
+        return { success: false, message: fetchError.message };
+      }
+
+      if (!theme) {
+        return { success: false, message: '主题不存在' };
+      }
+
+      if (theme.is_system) {
         return { success: false, message: '系统主题不能删除' };
       }
 
-      if (theme?.is_active || theme?.is_default) {
-        return { success: false, message: '激活或默认主题不能删除，请先切换到其他主题' };
+      if (theme.is_active) {
+        return { success: false, message: '激活主题不能删除，请先切换到其他主题' };
       }
 
       const { error } = await this.supabase

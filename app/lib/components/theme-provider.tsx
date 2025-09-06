@@ -7,6 +7,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 import { ModernThemeEngine, themeEngine } from '../services/modern-theme-engine';
+import { ThemeInitializer } from './theme-initializer';
 import {
   ModernTheme,
   ThemeConfig,
@@ -125,7 +126,8 @@ export function ThemeProvider({
   }, []);
   
   const getComponent = useCallback((type: string, name: string) => {
-    return themeEngine.getComponent(type, name);
+    const component = themeEngine.getComponent(type, name);
+    return component;
   }, []);
   
   const executeHook = useCallback(async (hookName: string, data?: any) => {
@@ -191,6 +193,7 @@ export function ThemeProvider({
   
   return (
     <ThemeProviderContext.Provider value={contextValue}>
+      <ThemeInitializer />
       {children}
     </ThemeProviderContext.Provider>
   );

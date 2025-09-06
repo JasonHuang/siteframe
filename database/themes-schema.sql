@@ -73,9 +73,10 @@ ALTER TABLE theme_settings ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can view themes" ON themes
     FOR SELECT USING (true);
 
--- 只有管理员可以管理主题
+-- 只有管理员可以管理主题，或者服务角色
 CREATE POLICY "Admins can manage themes" ON themes
     FOR ALL USING (
+        auth.role() = 'service_role' OR
         EXISTS (
             SELECT 1 FROM auth.users
             WHERE auth.users.id = auth.uid()
@@ -88,9 +89,10 @@ CREATE POLICY "Admins can manage themes" ON themes
 CREATE POLICY "Anyone can view theme settings" ON theme_settings
     FOR SELECT USING (true);
 
--- 只有管理员可以管理主题设置
+-- 只有管理员可以管理主题设置，或者服务角色
 CREATE POLICY "Admins can manage theme settings" ON theme_settings
     FOR ALL USING (
+        auth.role() = 'service_role' OR
         EXISTS (
             SELECT 1 FROM auth.users
             WHERE auth.users.id = auth.uid()

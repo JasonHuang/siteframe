@@ -4,8 +4,8 @@ const nextConfig = {
   images: {
     domains: ['localhost'],
   },
-  // 启用严格模式
-  reactStrictMode: true,
+  // 暂时禁用严格模式进行调试
+  reactStrictMode: false,
   // 启用SWC压缩
   swcMinify: true,
   // 环境变量会自动从 .env 文件加载
