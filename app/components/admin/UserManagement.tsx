@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '../../../lib/supabase';
-import type { User, Permission } from '../../../lib/types/database';
+import { supabase } from '../../lib/supabase';
+import type { User, Permission } from '../../lib/types/database';
 
 interface UserManagementProps {
   onClose?: () => void;
@@ -41,7 +41,11 @@ const UserManagement: React.FC<UserManagementProps> = ({ onClose }) => {
     'users:write': '编辑用户',
     'users:delete': '删除用户',
     'settings:read': '查看设置',
-    'settings:write': '修改设置'
+    'settings:write': '修改设置',
+    'themes:read': '查看主题',
+    'themes:write': '编辑主题',
+    'themes:delete': '删除主题',
+    'themes:activate': '激活主题'
   };
 
   // 角色权限映射

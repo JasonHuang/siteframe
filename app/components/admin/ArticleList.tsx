@@ -9,15 +9,15 @@ import {
   publishContent,
   unpublishContent,
   archiveContent
-} from '../../../lib/services/content';
-import { getAllCategories } from '../../../lib/services/categories';
+} from '../../lib/services/content';
+import { getAllCategories } from '../../lib/services/categories';
 import { PermissionButton, PermissionArea } from '../auth/PermissionGuard';
 import type { 
   Content, 
   Category, 
   ContentFilters, 
   PaginationParams 
-} from '../../../lib/types/database';
+} from '../../lib/types/database';
 
 interface ArticleListProps {
   onEdit?: (contentId: string) => void;

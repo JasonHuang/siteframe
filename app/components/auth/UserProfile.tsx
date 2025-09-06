@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { updateProfile, updatePassword, getUserProfile } from '../../../lib/services/auth';
-import type { User } from '../../../lib/types/database';
+import { updateProfile, updatePassword, getUserProfile } from '../../lib/services/auth';
+import type { User } from '../../lib/types/database';
 
 interface UserProfileProps {
   onClose?: () => void;

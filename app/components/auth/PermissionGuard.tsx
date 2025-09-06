@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { usePermission } from '../../contexts/AuthContext';
-import type { Permission } from '../../../lib/types/database';
+import type { Permission } from '../../lib/types/database';
 
 interface PermissionGuardProps {
   permission: Permission;

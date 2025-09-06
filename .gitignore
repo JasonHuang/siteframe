@@ -150,3 +150,207 @@ dist/
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
+
+# Theme System Specific
+# Theme development artifacts
+*.theme.json
+*.theme.zip
+examples/*/node_modules/
+examples/*/dist/
+examples/*/.next/
+examples/*/.turbo/
+
+# Theme builds and generated files
+themes/*/dist/
+themes/*/build/
+lib/**/*.js
+lib/**/*.js.map
+!lib/**/*.d.ts
+
+# Theme documentation builds
+docs/.vitepress/cache/
+docs/.vitepress/dist/
+docs/api/
+docs/generated/
+
+# Theme validation and analysis
+.validation-cache/
+.build-cache/
+validation-reports/
+analysis/
+reports/
+
+# Theme testing artifacts
+test-results/
+coverage-reports/
+visual-tests/
+screenshots-diff/
+performance-tests/
+security-reports/
+a11y-reports/
+
+# Theme development
+.turbo/
+storybook-static/
+screenshots/
+previews/
+
+# User uploads in examples
+examples/*/public/uploads/
+examples/*/static/uploads/
+
+# Sensitive configuration
+config/local.json
+config/secrets.json
+local.config.js
+local.config.ts
+local.config.json
+
+# Development certificates
+*.pem
+*.key
+*.crt
+*.cert
+
+# Theme marketplace artifacts
+marketplace/
+publish/
+
+# Experimental and prototype code
+experimental/
+prototype/
+
+# Vendor and third-party
+vendor/
+third-party/
+
+# Generated types
+types/generated/
+
+# Build reports
+build-reports/
+bundle-analyzer/
+
+# Deployment artifacts
+deploy/
+deployment/
+
+# Monitoring and profiling
+profiles/
+monitoring/
+
+# Theme specific logs
+development.log
+theme-dev.log
+build.log
+compile.log
+test.log
+spec.log
+deploy.log
+release.log
+error.log
+exception.log
+
+# Debug and profiling data
+debug/
+.debug/
+profiling/
+.profiling/
+
+# Analytics and usage data
+analytics/
+.analytics/
+usage/
+.usage/
+feedback/
+.feedback/
+
+# Feature flags and experiments
+feature-flags/
+.feature-flags/
+experiments/
+.experiments/
+
+# Release management
+canary/
+.canary/
+beta/
+.beta/
+alpha/
+.alpha/
+rc/
+.rc/
+hotfixes/
+.hotfixes/
+patches/
+.patches/
+
+# Support and maintenance
+support/
+.support/
+troubleshooting/
+.troubleshooting/
+diagnostics/
+.diagnostics/
+health-checks/
+.health-checks/
+
+# Backup and archive
+backups/
+archives/
+
+# Cache directories
+.cache/
+.temp/
+.tmp/
+
+# Package manager specific
+.pnp.*
+.yarn/
+
+# Build artifacts
+*.tgz
+*.tar.gz
+*.zip
+
+# Component library builds
+component-library/dist/
+
+# Design system artifacts
+design-system/build/
+
+# Style guide builds
+style-guide/dist/
+
+# Pattern library builds
+pattern-library/build/
+
+# Theme generator outputs
+generated-themes/
+
+# Theme optimization artifacts
+optimized/
+minified/
+
+# Theme metrics and benchmarks
+metrics/
+statistics/
+benchmarks/
+performance/
+
+# Theme compatibility tests
+compatibility-tests/
+
+# Theme migration artifacts
+migrations/artifacts/
+
+# Internationalization build files
+i18n/build/
+locales/build/
+
+# Keep some important IDE files but ignore user-specific settings
+!.vscode/tasks.json
+!.vscode/recommended-extensions.json
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json

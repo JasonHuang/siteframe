@@ -79,6 +79,28 @@ export interface Settings {
   updated_at: string;
 }
 
+export interface Theme {
+  id: string;
+  name: string;
+  display_name: string;
+  description?: string;
+  is_active: boolean;
+  is_default: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ThemeSetting {
+  id: string;
+  theme_id: string;
+  setting_key: string;
+  setting_value: any; // JSONB 类型
+  setting_type: 'color' | 'font' | 'spacing' | 'layout' | 'custom';
+  description?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 // API 响应类型
 export interface ApiResponse<T> {
   data?: T;
@@ -181,25 +203,33 @@ export type Permission =
   | 'users:write'
   | 'users:delete'
   | 'settings:read'
-  | 'settings:write';
+  | 'settings:write'
+  | 'themes:read'
+  | 'themes:write'
+  | 'themes:delete'
+  | 'themes:activate';
 
 export const ROLE_PERMISSIONS: Record<User['role'], Permission[]> = {
   ADMIN: [
     'content:read', 'content:write', 'content:delete', 'content:publish',
     'media:read', 'media:write', 'media:delete',
     'users:read', 'users:write', 'users:delete',
-    'settings:read', 'settings:write'
+    'settings:read', 'settings:write',
+    'themes:read', 'themes:write', 'themes:delete', 'themes:activate'
   ],
   EDITOR: [
     'content:read', 'content:write', 'content:delete', 'content:publish',
-    'media:read', 'media:write', 'media:delete'
+    'media:read', 'media:write', 'media:delete',
+    'themes:read'
   ],
   AUTHOR: [
     'content:read', 'content:write',
-    'media:read', 'media:write'
+    'media:read', 'media:write',
+    'themes:read'
   ],
   USER: [
     'content:read',
-    'media:read'
+    'media:read',
+    'themes:read'
   ]
 };

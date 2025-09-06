@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { signIn, signUp, signInWithProvider } from '../../../lib/services/auth';
-import type { SignInData, SignUpData } from '../../../lib/services/auth';
+import { signIn, signUp, signInWithProvider } from '../../lib/services/auth';
+import type { SignInData, SignUpData } from '../../lib/services/auth';
 
 interface AuthFormProps {
   mode?: 'signin' | 'signup';

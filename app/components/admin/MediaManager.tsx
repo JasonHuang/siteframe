@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { supabase } from '../../../lib/supabase';
-import type { Media } from '../../../lib/types/database';
+import { supabase } from '../../lib/supabase';
+import type { Media } from '../../lib/types/database';
 
 interface MediaManagerProps {
   onSelect?: (media: Media) => void;

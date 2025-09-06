@@ -11,7 +11,7 @@ import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import PerformanceMonitor, { PerformanceOptimizationTips } from './components/PerformanceMonitor';
-import { checkAdminExists } from '../lib/services/auth'
+import { checkAdminExists } from './lib/services/auth'
 
 export default function Home() {
   const router = useRouter()

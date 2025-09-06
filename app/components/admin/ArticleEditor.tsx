@@ -6,16 +6,16 @@ import {
   createContent, 
   updateContent, 
   getContentById 
-} from '../../../lib/services/content';
-import { getAllCategories } from '../../../lib/services/categories';
-import { getAllTags, createTag } from '../../../lib/services/tags';
+} from '../../lib/services/content';
+import { getAllCategories } from '../../lib/services/categories';
+import { getAllTags, createTag } from '../../lib/services/tags';
 import type { 
   Content, 
   Category, 
   Tag, 
   CreateContentData, 
   UpdateContentData 
-} from '../../../lib/types/database';
+} from '../../lib/types/database';
 
 interface ArticleEditorProps {
   contentId?: string | undefined;

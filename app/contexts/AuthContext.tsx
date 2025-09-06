@@ -1,8 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { getCurrentUser, onAuthStateChange } from '../../lib/services/auth';
-import type { AuthUser } from '../../lib/types/database';
+import { getCurrentUser, onAuthStateChange } from '../lib/services/auth';
+import type { AuthUser } from '../lib/types/database';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -35,7 +35,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // 登出
   const handleSignOut = async () => {
     try {
-      const { signOut } = await import('../../lib/services/auth');
+      const { signOut } = await import('../lib/services/auth');
       await signOut();
       setUser(null);
     } catch (error) {
@@ -143,7 +143,7 @@ export const withRole = <P extends object>(
       const fetchUserRole = async () => {
         if (user) {
           try {
-            const { getUserProfile } = await import('../../lib/services/auth');
+            const { getUserProfile } = await import('../lib/services/auth');
             const { data: userProfile } = await getUserProfile(user.id);
             setUserRole(userProfile?.role || null);
           } catch (error) {
@@ -216,7 +216,7 @@ export const usePermission = (permission: string) => {
     const checkUserPermission = async () => {
       if (user) {
         try {
-          const { checkPermission } = await import('../../lib/services/auth');
+          const { checkPermission } = await import('../lib/services/auth');
           const result = await checkPermission(permission);
           setHasPermission(result);
         } catch (error) {

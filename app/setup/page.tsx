@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { checkAdminExists, signUp } from '../../lib/services/auth';
+import { checkAdminExists, signUp } from '../lib/services/auth';
 
 interface SetupFormData {
   name: string;

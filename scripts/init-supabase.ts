@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
 import { createClient } from '@supabase/supabase-js'
-import { Database } from '../lib/supabase'
+import { Database } from '../app/lib/supabase'
 
 // 加载环境变量
 dotenv.config({ path: '.env.local' })

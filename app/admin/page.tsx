@@ -7,9 +7,10 @@ import ArticleList from '../components/admin/ArticleList';
 import ArticleEditor from '../components/admin/ArticleEditor';
 import UserProfile from '../components/auth/UserProfile';
 import UserManagement from '../components/admin/UserManagement';
+import ThemeManager from '../components/admin/ThemeManager';
 import Sidebar from '../components/admin/Sidebar';
 
-type ViewMode = 'list' | 'editor' | 'new' | 'profile' | 'users';
+type ViewMode = 'list' | 'editor' | 'new' | 'profile' | 'users' | 'themes';
 
 const AdminDashboard: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -159,6 +160,16 @@ const AdminDashboard: React.FC = () => {
               <PermissionArea permission="users:read">
                 <UserManagement
                   onClose={() => setCurrentView('list')}
+                />
+              </PermissionArea>
+            </div>
+          )}
+          
+          {currentView === 'themes' && (
+            <div className="p-6">
+              <PermissionArea permission="themes:read">
+                <ThemeManager
+                  className="w-full"
                 />
               </PermissionArea>
             </div>
