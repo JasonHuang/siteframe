@@ -13,10 +13,9 @@
     "type-check": "tsc --noEmit",
     "db:seed": "tsx scripts/init-supabase.ts",
     "db:init": "tsx scripts/init-supabase.ts",
-    "supabase:types": "supabase gen types typescript --project-id klfiwvrxfwvivtghlcnk --schema public > lib/supabase-types.ts",
-    "theme:scan": "tsx scripts/scan-themes.js",
-    "theme:watch": "tsx scripts/scan-themes.js --watch",
-    "theme:generate": "tsx scripts/generate-theme.ts"
+    "themes:register": "tsx scripts/register-themes.ts",
+    "themes:activate": "tsx scripts/register-themes.ts activate",
+    "supabase:types": "supabase gen types typescript --project-id klfiwvrxfwvivtghlcnk --schema public > lib/supabase-types.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.0",

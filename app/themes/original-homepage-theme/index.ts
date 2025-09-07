@@ -1,5 +1,5 @@
 import config from './theme.config';
-import { components, componentMeta } from './src/components';
+import { componentLoaders, componentMeta } from './src/components';
 
 // 主题加载器
 export async function loadTheme() {
@@ -14,7 +14,7 @@ export async function loadTheme() {
     },
     
     // 组件系统
-    components,
+    components: componentLoaders,
     componentMeta,
     
     // 默认配置
@@ -40,7 +40,7 @@ export async function loadTheme() {
     
     // 获取组件
     getComponent: async (type: 'layouts' | 'blocks' | 'widgets', name: string) => {
-      const componentGroup = components[type] as any;
+      const componentGroup = componentLoaders[type] as any;
       const componentLoader = componentGroup?.[name];
       if (!componentLoader) {
         throw new Error(`Component ${type}/${name} not found in theme`);

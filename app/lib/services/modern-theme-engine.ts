@@ -532,17 +532,17 @@ export class ModernThemeEngine extends EventEmitter {
     
     // 注册布局组件
     Object.entries(components.layouts).forEach(([name, component]) => {
-      this.registerComponent('layout', name, component);
+      this.registerComponentDefinition('layout', name, component);
     });
     
     // 注册块组件
     Object.entries(components.blocks).forEach(([name, component]) => {
-      this.registerComponent('block', name, component);
+      this.registerComponentDefinition('block', name, component);
     });
     
     // 注册小部件组件
     Object.entries(components.widgets).forEach(([name, component]) => {
-      this.registerComponent('widget', name, component);
+      this.registerComponentDefinition('widget', name, component);
     });
   }
 
@@ -552,6 +552,41 @@ export class ModernThemeEngine extends EventEmitter {
   private registerComponent(type: string, name: string, component: React.ComponentType<any>): void {
     const key = `${type}:${name}`;
     this.componentRegistry.set(key, component);
+    this.emit('component:registered', { type, name });
+  }
+
+  /**
+   * 注册组件定义
+   */
+  private registerComponentDefinition(type: string, name: string, componentDef: any): void {
+    const key = `${type}:${name}`;
+    
+    // 如果是函数，检查是否为动态导入函数
+    if (typeof componentDef === 'function') {
+      // 尝试调用函数，如果返回 Promise，则是动态导入
+      try {
+        const result = componentDef();
+        if (result && typeof result.then === 'function') {
+          // 这是一个动态导入函数
+          const LazyComponent = React.lazy(async () => {
+            const module = await componentDef();
+            return { default: module.default || module };
+          });
+          this.componentRegistry.set(key, LazyComponent);
+        } else {
+          // 这是一个直接的 React 组件
+          this.componentRegistry.set(key, componentDef);
+        }
+      } catch (error) {
+        // 如果调用失败，假设这是一个 React 组件
+        this.componentRegistry.set(key, componentDef);
+      }
+    }
+    // 其他情况直接注册
+    else {
+      this.componentRegistry.set(key, componentDef);
+    }
+    
     this.emit('component:registered', { type, name });
   }
 

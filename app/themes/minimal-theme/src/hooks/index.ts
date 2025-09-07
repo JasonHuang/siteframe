@@ -1,3 +1,5 @@
+'use client'
+
 /**
  * Custom hooks for Minimal Theme
  * 主题专用的自定义钩子

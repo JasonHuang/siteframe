@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { themeService } from '../../../lib/services/themes';
+import { unifiedThemeService } from '../../../lib/services/unified-theme-service';
 import { checkApiPermission } from '../../../lib/services/auth';
 
 /**
@@ -25,23 +25,11 @@ export async function GET(request: NextRequest) {
     const sortOrder = searchParams.get('sort_order') || 'desc';
 
     // 获取主题列表
-    const result = await themeService.getThemes({
-      page,
-      limit,
-      sort_by: sortBy,
-      sort_order: sortOrder as 'asc' | 'desc'
-    });
-
-    if (result.error) {
-      return NextResponse.json(
-        { error: result.error },
-        { status: 500 }
-      );
-    }
+    const themes = await unifiedThemeService.getAllThemes();
 
     return NextResponse.json({
       success: true,
-      data: result.data
+      data: themes
     });
   } catch (error) {
     console.error('获取主题列表失败:', error);

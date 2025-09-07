@@ -21,16 +21,28 @@ export default function SetupPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [adminExists, setAdminExists] = useState(false);
+  const [countdown, setCountdown] = useState(3);
   const router = useRouter();
 
   useEffect(() => {
     // 检查是否已存在管理员
     const checkAdmin = async () => {
       try {
-        const adminExists = await checkAdminExists();
-        if (adminExists) {
-          // 如果已存在管理员，重定向到登录页面
-          router.push('/auth/signin');
+        const exists = await checkAdminExists();
+        if (exists) {
+          setAdminExists(true);
+          // 开始倒计时
+          const timer = setInterval(() => {
+            setCountdown(prev => {
+              if (prev <= 1) {
+                clearInterval(timer);
+                router.push('/');
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
           return;
         }
         setChecking(false);
@@ -121,6 +133,31 @@ export default function SetupPage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">正在检查系统状态...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (adminExists) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md w-full text-center">
+          <div className="bg-white shadow-md rounded-lg p-8">
+            <div className="mb-6">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">无权限访问</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              系统已存在管理员账号，无法重复初始化。
+            </p>
+            <p className="text-sm text-gray-500">
+              {countdown} 秒后自动跳转到主页...
+            </p>
+          </div>
         </div>
       </div>
     );

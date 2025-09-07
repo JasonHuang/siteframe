@@ -106,18 +106,13 @@ export const withAuth = <P extends object>(Component: React.ComponentType<P>) =>
     }
 
     if (!user) {
+      // 直接重定向到登录页面
+      if (typeof window !== 'undefined') {
+        window.location.href = '/auth/signin';
+      }
       return (
         <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">需要登录</h2>
-            <p className="text-gray-600 mb-6">请先登录以访问此页面</p>
-            <a
-              href="/auth/signin"
-              className="inline-block px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-            >
-              前往登录
-            </a>
-          </div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
         </div>
       );
     }

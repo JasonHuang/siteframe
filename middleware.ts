@@ -9,27 +9,7 @@ const supabase = createClient(
 )
 
 export async function middleware(request: NextRequest) {
-  // 检查是否访问设置页面
-  if (request.nextUrl.pathname === '/setup') {
-    try {
-      // 检查是否已存在管理员
-      const { data: adminExists } = await supabase
-        .from('users')
-        .select('id')
-        .eq('role', 'ADMIN')
-        .limit(1)
-        .single()
-      
-      // 如果已存在管理员，重定向到登录页面
-      if (adminExists) {
-        return NextResponse.redirect(new URL('/auth/signin', request.url))
-      }
-    } catch (error) {
-      // 如果查询出错（比如没有找到管理员），允许访问设置页面
-      // No admin found, allowing access to setup page
-    }
-  }
-  
+  // 移除 /setup 页面的中间件保护，让页面组件自己处理管理员存在的逻辑
   return NextResponse.next()
 }
 

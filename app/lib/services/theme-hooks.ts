@@ -1,5 +1,5 @@
-import type { Theme, CreateThemeInput } from '../types/theme';
-import { ThemeService } from './themes';
+import type { UnifiedTheme, CreateThemeInput } from '../types/unified-theme';
+import { unifiedThemeService } from './unified-theme-service';
 
 /**
  * 主题钩子接口
@@ -10,31 +10,31 @@ export interface ThemeHooks {
   beforeRegister?: (themeData: CreateThemeInput) => Promise<CreateThemeInput | void>;
   
   /** 主题注册后调用 */
-  afterRegister?: (theme: Theme) => Promise<void>;
+  afterRegister?: (theme: UnifiedTheme) => Promise<void>;
   
   /** 主题激活前调用 */
-  beforeActivate?: (theme: Theme) => Promise<boolean>;
+  beforeActivate?: (theme: UnifiedTheme) => Promise<boolean>;
   
   /** 主题激活后调用 */
-  afterActivate?: (theme: Theme) => Promise<void>;
+  afterActivate?: (theme: UnifiedTheme) => Promise<void>;
   
   /** 主题停用前调用 */
-  beforeDeactivate?: (theme: Theme) => Promise<boolean>;
+  beforeDeactivate?: (theme: UnifiedTheme) => Promise<boolean>;
   
   /** 主题停用后调用 */
-  afterDeactivate?: (theme: Theme) => Promise<void>;
+  afterDeactivate?: (theme: UnifiedTheme) => Promise<void>;
   
   /** 主题删除前调用 */
-  beforeDelete?: (theme: Theme) => Promise<boolean>;
+  beforeDelete?: (theme: UnifiedTheme) => Promise<boolean>;
   
   /** 主题删除后调用 */
   afterDelete?: (themeId: string) => Promise<void>;
   
   /** 主题更新前调用 */
-  beforeUpdate?: (theme: Theme, updates: Partial<Theme>) => Promise<Partial<Theme> | void>;
+  beforeUpdate?: (theme: UnifiedTheme, updates: Partial<UnifiedTheme>) => Promise<Partial<UnifiedTheme> | void>;
   
   /** 主题更新后调用 */
-  afterUpdate?: (theme: Theme) => Promise<void>;
+  afterUpdate?: (theme: UnifiedTheme) => Promise<void>;
 }
 
 /**
@@ -97,7 +97,7 @@ export class ThemeHookManager {
   /**
    * 执行注册后钩子
    */
-  async executeAfterRegister(theme: Theme): Promise<void> {
+  async executeAfterRegister(theme: UnifiedTheme): Promise<void> {
     // 执行全局钩子
     for (const globalHook of this.globalHooks) {
       if (globalHook.afterRegister) {
@@ -115,7 +115,7 @@ export class ThemeHookManager {
   /**
    * 执行激活前钩子
    */
-  async executeBeforeActivate(theme: Theme): Promise<boolean> {
+  async executeBeforeActivate(theme: UnifiedTheme): Promise<boolean> {
     // 执行全局钩子
     for (const globalHook of this.globalHooks) {
       if (globalHook.beforeActivate) {
@@ -141,7 +141,7 @@ export class ThemeHookManager {
   /**
    * 执行激活后钩子
    */
-  async executeAfterActivate(theme: Theme): Promise<void> {
+  async executeAfterActivate(theme: UnifiedTheme): Promise<void> {
     // 执行全局钩子
     for (const globalHook of this.globalHooks) {
       if (globalHook.afterActivate) {
@@ -159,7 +159,7 @@ export class ThemeHookManager {
   /**
    * 执行停用前钩子
    */
-  async executeBeforeDeactivate(theme: Theme): Promise<boolean> {
+  async executeBeforeDeactivate(theme: UnifiedTheme): Promise<boolean> {
     // 执行全局钩子
     for (const globalHook of this.globalHooks) {
       if (globalHook.beforeDeactivate) {
@@ -185,7 +185,7 @@ export class ThemeHookManager {
   /**
    * 执行停用后钩子
    */
-  async executeAfterDeactivate(theme: Theme): Promise<void> {
+  async executeAfterDeactivate(theme: UnifiedTheme): Promise<void> {
     // 执行全局钩子
     for (const globalHook of this.globalHooks) {
       if (globalHook.afterDeactivate) {
@@ -203,7 +203,7 @@ export class ThemeHookManager {
   /**
    * 执行删除前钩子
    */
-  async executeBeforeDelete(theme: Theme): Promise<boolean> {
+  async executeBeforeDelete(theme: UnifiedTheme): Promise<boolean> {
     // 执行全局钩子
     for (const globalHook of this.globalHooks) {
       if (globalHook.beforeDelete) {
@@ -250,7 +250,7 @@ export class ThemeHookManager {
   /**
    * 执行更新前钩子
    */
-  async executeBeforeUpdate(theme: Theme, updates: Partial<Theme>): Promise<Partial<Theme>> {
+  async executeBeforeUpdate(theme: UnifiedTheme, updates: Partial<UnifiedTheme>): Promise<Partial<UnifiedTheme>> {
     let modifiedUpdates = { ...updates };
 
     // 执行全局钩子
@@ -278,7 +278,7 @@ export class ThemeHookManager {
   /**
    * 执行更新后钩子
    */
-  async executeAfterUpdate(theme: Theme): Promise<void> {
+  async executeAfterUpdate(theme: UnifiedTheme): Promise<void> {
     // 执行全局钩子
     for (const globalHook of this.globalHooks) {
       if (globalHook.afterUpdate) {
@@ -308,15 +308,15 @@ export const themeHookManager = new ThemeHookManager();
 
 // 注册一些默认的全局钩子
 themeHookManager.registerGlobalHooks({
-  afterRegister: async (theme: Theme) => {
+  afterRegister: async (theme: UnifiedTheme) => {
     console.log(`🎨 主题已注册: ${theme.display_name} (${theme.name})`);
   },
   
-  afterActivate: async (theme: Theme) => {
+  afterActivate: async (theme: UnifiedTheme) => {
     console.log(`✅ 主题已激活: ${theme.display_name}`);
   },
   
-  afterDeactivate: async (theme: Theme) => {
+  afterDeactivate: async (theme: UnifiedTheme) => {
     console.log(`⏸️ 主题已停用: ${theme.display_name}`);
   },
   

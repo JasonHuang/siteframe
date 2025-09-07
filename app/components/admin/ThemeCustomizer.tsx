@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { themeService } from '../../lib/services/themes';
-import type { Theme, ThemeSetting, ThemeConfig } from '../../lib/types/theme';
+import { unifiedThemeService } from '../../lib/services/unified-theme-service';
+import type { UnifiedTheme, UnifiedThemeConfig } from '../../lib/types/unified-theme';
+import type { ThemeSetting } from '../../lib/types/theme';
 
 interface ThemeCustomizerProps {
-  theme: Theme;
+  theme: UnifiedTheme;
   onThemeUpdate: () => void;
 }
 
@@ -74,7 +75,7 @@ function InputField({ label, value, onChange, description, placeholder, type = '
 }
 
 export default function ThemeCustomizer({ theme, onThemeUpdate }: ThemeCustomizerProps) {
-  const [config, setConfig] = useState<ThemeConfig>({});
+  const [config, setConfig] = useState<UnifiedThemeConfig>({});
   const [settings, setSettings] = useState<ThemeSetting[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -87,23 +88,18 @@ export default function ThemeCustomizer({ theme, onThemeUpdate }: ThemeCustomize
     setError(null);
     
     try {
-      const [configResult, settingsResult] = await Promise.all([
-        themeService.getThemeConfig(theme.id),
-        themeService.getThemeSettings(theme.id)
-      ]);
-
-      if (configResult.error) {
-        setError(configResult.error);
+      // 从统一主题服务获取配置
+      const themeData = await unifiedThemeService.getThemeById(theme.id);
+      if (!themeData) {
+        setError('主题不存在');
         return;
       }
+      
+      setConfig(themeData.config || {});
+       // 统一主题暂时不支持 settings，使用空数组
+       setSettings([]);
 
-      if (settingsResult.error) {
-        setError(settingsResult.error);
-        return;
-      }
-
-      setConfig(configResult.data || {});
-      setSettings(settingsResult.data || []);
+      // 配置已在上面设置
     } catch (err) {
       setError('加载主题配置失败');
     } finally {
@@ -118,14 +114,11 @@ export default function ThemeCustomizer({ theme, onThemeUpdate }: ThemeCustomize
     
     try {
       // 更新主题配置
-      const updateResult = await themeService.updateTheme(theme.id, {
+      await unifiedThemeService.updateTheme(theme.id, {
         config
       });
 
-      if (updateResult.error) {
-        setError(updateResult.error);
-        return;
-      }
+      // 更新成功，无需检查错误
 
       // 批量更新设置
       const settingsData: Record<string, any> = {};
@@ -161,14 +154,8 @@ export default function ThemeCustomizer({ theme, onThemeUpdate }: ThemeCustomize
         });
       }
 
-      if (Object.keys(settingsData).length > 0) {
-        const settingsResult = await themeService.updateThemeSettings(theme.id, settingsData);
-        
-        if (!settingsResult.success) {
-          setError(settingsResult.message);
-          return;
-        }
-      }
+      // 统一主题服务暂时不支持单独的设置更新
+      // 设置已包含在配置中
 
       onThemeUpdate();
     } catch (err) {
