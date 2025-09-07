@@ -170,20 +170,17 @@ export class ModernThemeEngine extends EventEmitter {
       
       // 所有主题都使用静态导入以避免 webpack 警告
       switch (themeName) {
-        case 'original-homepage-theme':
-          themeModule = await import('@/themes/original-homepage-theme');
+        case 'original-theme':
+          themeModule = await import('@/themes/original-theme');
           break;
-        case 'minimal-theme':
-          themeModule = await import('@/themes/minimal-theme');
+        case 'company-theme':
+          themeModule = await import('@/themes/company-theme');
           break;
-        case 'modern-blog-theme':
-          themeModule = await import('@/themes/modern-blog-theme');
-          break;
-        case 'test-auto-theme':
-          themeModule = await import('@/themes/test-auto-theme');
+        case 'future-theme':
+          themeModule = await import('@/themes/future-theme');
           break;
         default:
-          throw new Error(`Theme '${themeName}' is not registered. Available themes: original-homepage-theme, minimal-theme, modern-blog-theme, test-auto-theme`);
+          throw new Error(`Theme '${themeName}' is not registered. Available themes: original-theme, company-theme, future-theme`);
       }
       
       const theme = themeModule.default || themeModule;

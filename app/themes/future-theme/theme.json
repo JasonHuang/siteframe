@@ -1,0 +1,11 @@
+{
+  "name": "future-theme",
+  "display_name": "未来主题",
+  "description": "前瞻性设计的现代化主题，展现未来科技感",
+  "version": "1.0.0",
+  "author": "SiteFrame Team",
+  "homepage": "https://siteframe.dev",
+  "license": "MIT",
+  "tags": ["future", "modern", "responsive", "tech"],
+  "is_active": false
+}

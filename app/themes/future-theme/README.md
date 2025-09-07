@@ -15,7 +15,7 @@
 ## 目录结构
 
 ```
-modern-blog-theme/
+future-theme/
 ├── src/
 │   ├── components/          # 组件
 │   │   ├── layouts/         # 布局组件
@@ -134,7 +134,7 @@ const breakpoint = useBreakpoint(); // 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 
 ## 使用方法
 
-1. 将主题文件放置在 `examples/modern-blog-theme/` 目录下
+1. 将主题文件放置在 `examples/future-theme/` 目录下
 2. 在主题系统中引入主题
 3. 根据需要调整配置选项
 4. 自定义样式和组件

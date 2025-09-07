@@ -6,7 +6,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { UnifiedTheme, UnifiedThemeConfig, ThemeOperationResult, ThemeState, CreateUnifiedThemeInput, UpdateUnifiedThemeInput, convertLegacyTheme, convertModernTheme, UnifiedThemeEngine } from '../types/unified-theme';
 import { themeEngine as modernThemeEngine } from './modern-theme-engine';
-import { supabase } from '../supabase';
+import { supabase, supabaseAdmin } from '../supabase';
 
 
 /**
@@ -24,11 +24,8 @@ class UnifiedThemeService implements UnifiedThemeEngine {
   private components: Map<string, Map<string, React.ComponentType<any>>> = new Map();
 
   constructor() {
-    this.supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-    
+    this.supabase = supabaseAdmin || supabase;
+     
     // 初始化组件存储
     this.components.set('layout', new Map());
     this.components.set('block', new Map());
@@ -48,7 +45,7 @@ class UnifiedThemeService implements UnifiedThemeEngine {
       this.error = null;
       
       // 获取数据库中的主题
-      const { data: themes, error } = await supabase
+      const { data: themes, error } = await this.supabase
         .from('themes')
         .select('*')
         .order('created_at', { ascending: false });
@@ -84,7 +81,7 @@ class UnifiedThemeService implements UnifiedThemeEngine {
   async getActiveTheme(): Promise<UnifiedTheme | null> {
     try {
       // 从数据库获取激活主题
-      const { data: activeTheme, error } = await supabase
+      const { data: activeTheme, error } = await this.supabase
         .from('themes')
         .select('*')
         .eq('is_active', true)
@@ -115,7 +112,7 @@ class UnifiedThemeService implements UnifiedThemeEngine {
   async getThemeById(id: string): Promise<UnifiedTheme | null> {
     try {
       // 从数据库获取主题
-      const { data: theme, error } = await supabase
+      const { data: theme, error } = await this.supabase
         .from('themes')
         .select('*')
         .eq('id', id)
@@ -198,9 +195,25 @@ class UnifiedThemeService implements UnifiedThemeEngine {
   async activateTheme(themeId: string): Promise<void> {
     try {
       // 激活主题：先取消所有主题的激活状态，再激活指定主题
-      await supabase.from('themes').update({ is_active: false }).neq('id', '');
-      const { error } = await supabase.from('themes').update({ is_active: true }).eq('id', themeId);
-      if (error) throw new Error(error.message);
+      const { error: deactivateError } = await this.supabase
+        .from('themes')
+        .update({ is_active: false })
+        .eq('is_active', true);
+      
+      if (deactivateError) {
+        console.error('Failed to deactivate themes:', deactivateError);
+        throw new Error(deactivateError.message);
+      }
+      
+      const { error: activateError } = await this.supabase
+        .from('themes')
+        .update({ is_active: true })
+        .eq('id', themeId);
+        
+      if (activateError) {
+        console.error('Failed to activate theme:', activateError);
+        throw new Error(activateError.message);
+      }
       
       // 加载主题到现代引擎
       await this.loadTheme(themeId);
@@ -220,7 +233,7 @@ class UnifiedThemeService implements UnifiedThemeEngine {
   async createTheme(input: CreateUnifiedThemeInput): Promise<UnifiedTheme> {
     try {
       // 创建主题
-      const { data: theme, error } = await supabase
+      const { data: theme, error } = await this.supabase
         .from('themes')
         .insert({
           name: input.name,
@@ -261,7 +274,7 @@ class UnifiedThemeService implements UnifiedThemeEngine {
         updated_at: new Date().toISOString()
       };
       
-      const { data: theme, error } = await supabase
+      const { data: theme, error } = await this.supabase
         .from('themes')
         .update(updateData)
         .eq('id', id)
@@ -288,7 +301,7 @@ class UnifiedThemeService implements UnifiedThemeEngine {
       await this.unloadTheme(id);
       
       // 删除主题
-      const { error } = await supabase.from('themes').delete().eq('id', id);
+      const { error } = await this.supabase.from('themes').delete().eq('id', id);
       if (error) throw new Error(error.message);
       
     } catch (error) {

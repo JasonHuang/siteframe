@@ -66,10 +66,6 @@ async function registerTheme(config: ThemeConfig): Promise<boolean> {
         description: config.description,
         version: config.version,
         author: config.author || null,
-        homepage: config.homepage || null,
-        repository: config.repository || null,
-        license: config.license || null,
-        tags: config.tags || [],
         preview_image: config.preview_image || null,
         is_active: config.is_active || false,
         updated_at: new Date().toISOString()

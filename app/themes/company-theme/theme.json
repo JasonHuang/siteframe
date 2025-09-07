@@ -1,0 +1,12 @@
+{
+  "name": "company-theme",
+  "display_name": "企业主题",
+  "description": "专业的企业主题，适合商业网站",
+  "version": "1.0.0",
+  "author": "Theme Generator",
+  "homepage": "https://github.com/themes/company-theme",
+  "repository": "https://github.com/themes/company-theme.git",
+  "license": "MIT",
+  "tags": ["responsive", "dark-mode", "typography", "business", "corporate"],
+  "is_active": false
+}

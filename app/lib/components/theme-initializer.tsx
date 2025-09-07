@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react'
 import { useTheme } from './theme-provider'
-import { unifiedThemeService } from '../services/unified-theme-service'
 
 /**
  * 主题初始化组件
@@ -14,14 +13,19 @@ export function ThemeInitializer() {
   useEffect(() => {
     const initializeTheme = async () => {
       try {
-        const activeTheme = await unifiedThemeService.getActiveTheme()
-        
-        if (activeTheme) {
-          try {
-            // 实际加载主题到引擎中
-            await loadTheme(activeTheme.name, { type: 'local', path: `themes/${activeTheme.name}` })
-          } catch (loadError) {
-            console.error('主题加载失败:', loadError)
+        // 通过公共API获取活跃主题
+        const response = await fetch('/api/themes/active')
+        if (response.ok) {
+          const result = await response.json()
+          if (result.success && result.data) {
+            const activeTheme = result.data
+            
+            try {
+              // 实际加载主题到引擎中
+              await loadTheme(activeTheme.name, { type: 'local', path: `themes/${activeTheme.name}` })
+            } catch (loadError) {
+              console.error('主题加载失败:', loadError)
+            }
           }
         }
       } catch (error) {

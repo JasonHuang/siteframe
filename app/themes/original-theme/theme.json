@@ -1,0 +1,10 @@
+{
+  "name": "original-theme",
+  "display_name": "原始主题",
+  "description": "经典的原始设计主题",
+  "version": "1.0.0",
+  "author": "SiteFrame",
+  "license": "MIT",
+  "tags": ["classic", "original", "responsive"],
+  "is_active": false
+}

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { unifiedThemeService } from '../../lib/services/unified-theme-service';
 import type { UnifiedTheme } from '../../lib/types/unified-theme';
 import type { ThemeOperationResult } from '../../lib/types/theme';
 import ThemeSelector from './ThemeSelector';
@@ -29,31 +28,20 @@ export default function ThemeManager({ className = '' }: ThemeManagerProps) {
     setError(null);
     
     try {
-      // 首先自动检测并注册新主题
-      try {
-        const detectResponse = await authenticatedPost('/api/admin/themes/detect');
-        
-        if (detectResponse.ok) {
-          const detectResult = await detectResponse.json();
-          if (detectResult.data.registered > 0) {
-            console.log('自动主题检测完成:', detectResult.message);
-          }
-        }
-      } catch (detectError) {
-        console.warn('自动主题检测失败:', detectError);
-        // 检测失败不影响主题加载
-      }
+      // 通过API获取主题数据
+      const response = await authenticatedGet('/api/admin/themes');
+      const result = await response.json();
       
-      // 然后加载主题数据
-      const [themesResult, activeThemeResult] = await Promise.all([
-        unifiedThemeService.getAllThemes(),
-        unifiedThemeService.getActiveTheme()
-      ]);
-
-      // 统一主题服务直接返回数据，不需要检查 error 属性
-      setThemes(themesResult || []);
-      setActiveTheme(activeThemeResult || null);
-      setSelectedTheme(activeThemeResult || null);
+      if (response.ok && result.success) {
+        const allThemes = result.data || [];
+        const activeTheme = allThemes.find((theme: UnifiedTheme) => theme.is_active) || null;
+        
+        setThemes(allThemes);
+        setActiveTheme(activeTheme);
+        setSelectedTheme(activeTheme);
+      } else {
+        setError(result.error || '加载主题数据失败');
+      }
     } catch (err) {
       setError('加载主题数据失败');
     } finally {
@@ -98,23 +86,32 @@ export default function ThemeManager({ className = '' }: ThemeManagerProps) {
     }
 
     try {
-      await unifiedThemeService.deleteTheme(themeId);
+      const response = await authenticatedPost(`/api/admin/themes/${themeId}/delete`, {});
+      const result = await response.json();
+      
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || '删除主题失败');
+      }
+      
       await loadThemes(); // 重新加载数据
       setError(null);
     } catch (err) {
-      setError('删除主题失败');
+      setError(err instanceof Error ? err.message : '删除主题失败');
     }
   };
 
   // 导出主题
   const handleExportTheme = async (themeId: string) => {
     try {
-      const theme = await unifiedThemeService.getThemeById(themeId);
+      const response = await authenticatedGet(`/api/admin/themes/${themeId}`);
+      const result = await response.json();
       
-      if (!theme) {
-        setError('主题不存在');
+      if (!response.ok || !result.success) {
+        setError(result.error || '主题不存在');
         return;
       }
+      
+      const theme = result.data;
 
       // 下载导出的主题文件
       const blob = new Blob([JSON.stringify(theme, null, 2)], {

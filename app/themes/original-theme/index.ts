@@ -6,10 +6,10 @@ export async function loadTheme() {
   return {
     // 主题元数据
     metadata: {
-      name: 'original-homepage-theme',
-      displayName: '原始主页主题',
+      name: 'original-theme',
+      displayName: '原始主题',
       version: '1.0.0',
-      description: '基于原始主页设计的完整主题',
+      description: '经典的原始设计主题',
       author: 'SiteFrame'
     },
     

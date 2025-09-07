@@ -1,6 +1,6 @@
 /**
- * Modern Blog Theme - 现代博客主题
- * 一个现代化、响应式的博客主题
+ * Future Theme - 未来主题
+ * 前瞻性设计的现代化主题
  */
 
 import type { ModernTheme, ColorScale } from '../../lib/types/modern-theme';
@@ -27,13 +27,13 @@ const TempComponent: React.FC = () => React.createElement('div', { children: '�
 // 主题定义
 const theme: ModernTheme = {
   metadata: {
-    name: 'modern-blog-theme',
+    name: 'future-theme',
     version: '1.0.0',
-    description: '一个现代化、响应式的博客主题，适用于个人博客和内容网站',
+    description: '前瞻性设计的现代化主题，展现未来科技感',
     author: 'SiteFrame Team',
     homepage: 'https://siteframe.dev',
     license: 'MIT',
-    tags: ['blog', 'modern', 'responsive'],
+    tags: ['future', 'modern', 'responsive', 'tech'],
     compatibility: {
       minVersion: '1.0.0'
     }

@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { unifiedThemeService } from '../../lib/services/unified-theme-service';
 import type { UnifiedTheme, UnifiedThemeConfig } from '../../lib/types/unified-theme';
 import type { ThemeSetting } from '../../lib/types/theme';
+import { authenticatedGet, authenticatedPut } from '@/lib/utils/api';
 
 interface ThemeCustomizerProps {
   theme: UnifiedTheme;
@@ -88,18 +88,17 @@ export default function ThemeCustomizer({ theme, onThemeUpdate }: ThemeCustomize
     setError(null);
     
     try {
-      // 从统一主题服务获取配置
-      const themeData = await unifiedThemeService.getThemeById(theme.id);
-      if (!themeData) {
-        setError('主题不存在');
-        return;
-      }
+      // 通过API获取主题配置
+      const response = await authenticatedGet(`/api/admin/themes/${theme.id}`);
+      const result = await response.json();
       
-      setConfig(themeData.config || {});
-       // 统一主题暂时不支持 settings，使用空数组
-       setSettings([]);
-
-      // 配置已在上面设置
+      if (response.ok && result.success) {
+        setConfig(result.data.config || {});
+        // 统一主题暂时不支持 settings，使用空数组
+        setSettings([]);
+      } else {
+        setError(result.error || '主题不存在');
+      }
     } catch (err) {
       setError('加载主题配置失败');
     } finally {
@@ -113,10 +112,15 @@ export default function ThemeCustomizer({ theme, onThemeUpdate }: ThemeCustomize
     setError(null);
     
     try {
-      // 更新主题配置
-      await unifiedThemeService.updateTheme(theme.id, {
+      // 通过API更新主题配置
+      const response = await authenticatedPut(`/api/admin/themes/${theme.id}`, {
         config
       });
+      
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || '更新主题配置失败');
+      }
 
       // 更新成功，无需检查错误
 

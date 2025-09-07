@@ -1,10 +1,10 @@
 /**
- * Minimal Theme - 示例主题
- * 展示现代化主题系统的基本用法
+ * Company Theme - 企业主题
+ * 适合企业官网和商业用途的专业主题
  */
 
 import React from 'react';
-import { ModernTheme } from '../../../lib/types/modern-theme';
+import { ModernTheme } from '../../lib/types/modern-theme';
 
 // 导入组件
 import DefaultLayout from './src/components/layouts/DefaultLayout';
@@ -28,14 +28,14 @@ import NavigationMeta from './src/components/blocks/Navigation/meta';
 
 const theme: ModernTheme = {
   metadata: {
-    name: 'minimal-theme',
+    name: 'company-theme',
     version: '1.0.0',
     author: 'Theme Generator',
-    description: '简洁现代的极简主题',
-    homepage: 'https://github.com/themes/minimal-theme',
-    repository: 'https://github.com/themes/minimal-theme.git',
+    description: '专业的企业主题，适合商业网站',
+    homepage: 'https://github.com/themes/company-theme',
+    repository: 'https://github.com/themes/company-theme.git',
     license: 'MIT',
-    tags: ['responsive', 'dark-mode', 'typography', 'minimal', 'blog'],
+    tags: ['responsive', 'dark-mode', 'typography', 'business', 'corporate'],
     screenshot: './public/images/screenshot.png',
     compatibility: {
       minVersion: '1.0.0'
