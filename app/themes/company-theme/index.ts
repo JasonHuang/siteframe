@@ -1,37 +1,51 @@
 /**
- * Company Theme - 企业主题
- * 适合企业官网和商业用途的专业主题
+ * Company Theme - Professional Business Theme
+ * Professional theme suitable for corporate websites and business purposes
  */
 
 import React from 'react';
 import { ModernTheme } from '../../lib/types/modern-theme';
 
-// 导入组件
+// Import components
 import DefaultLayout from './src/components/layouts/DefaultLayout';
 import PostLayout from './src/components/layouts/PostLayout';
 import Header from './src/components/blocks/Header';
 import Footer from './src/components/blocks/Footer';
 import PostCard from './src/components/blocks/PostCard';
 import Navigation from './src/components/blocks/Navigation';
+import Hero from './src/components/blocks/Hero';
+import Services from './src/components/blocks/Services';
+import About from './src/components/blocks/About';
+import Contact from './src/components/blocks/Contact';
 
-// 导入样式和配置
+// Import templates
+import CompanyHomepage from './src/templates/CompanyHomepage';
+
+// Import styles and configuration
 import designTokens from './src/styles/tokens';
 import defaultConfig from './src/config/default';
 
-// 导入组件元数据
+// Import component metadata
 import DefaultLayoutMeta from './src/components/layouts/DefaultLayout/meta';
 import PostLayoutMeta from './src/components/layouts/PostLayout/meta';
 import HeaderMeta from './src/components/blocks/Header/meta';
 import FooterMeta from './src/components/blocks/Footer/meta';
 import PostCardMeta from './src/components/blocks/PostCard/meta';
 import NavigationMeta from './src/components/blocks/Navigation/meta';
+import HeroMeta from './src/components/blocks/Hero/meta';
+import ServicesMeta from './src/components/blocks/Services/meta';
+import AboutMeta from './src/components/blocks/About/meta';
+import ContactMeta from './src/components/blocks/Contact/meta';
+
+// Import template metadata
+import CompanyHomepageMeta from './src/templates/CompanyHomepage/meta';
 
 const theme: ModernTheme = {
   metadata: {
     name: 'company-theme',
     version: '1.0.0',
     author: 'Theme Generator',
-    description: '专业的企业主题，适合商业网站',
+    description: 'Professional company theme, suitable for business websites',
     homepage: 'https://github.com/themes/company-theme',
     repository: 'https://github.com/themes/company-theme.git',
     license: 'MIT',
@@ -51,7 +65,12 @@ const theme: ModernTheme = {
       Header,
       Footer,
       PostCard,
-      Navigation
+      Navigation,
+      Hero,
+      Services,
+      About,
+      Contact,
+      CompanyHomepage
     },
     widgets: {}
   },
@@ -65,7 +84,12 @@ const theme: ModernTheme = {
       Header: HeaderMeta,
       Footer: FooterMeta,
       PostCard: PostCardMeta,
-      Navigation: NavigationMeta
+      Navigation: NavigationMeta,
+      Hero: HeroMeta,
+      Services: ServicesMeta,
+      About: AboutMeta,
+      Contact: ContactMeta,
+      CompanyHomepage: CompanyHomepageMeta
     },
     widgets: {}
   },
@@ -260,7 +284,7 @@ const theme: ModernTheme = {
     'theme:init': async (context: any) => {
       console.log('Minimal theme initialized');
       
-      // 设置默认主题模式
+      // Set default theme mode
       if (context.config?.styles?.theme === 'auto') {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         context.setThemeMode?.(prefersDark ? 'dark' : 'light');
@@ -268,17 +292,17 @@ const theme: ModernTheme = {
     },
     
     'theme:beforeRender': async (context: any) => {
-      // 在渲染前执行的逻辑
+      // Logic to execute before rendering
       console.log('Minimal theme before render');
     },
     
     'theme:afterRender': async (context: any) => {
-      // 在渲染后执行的逻辑
+      // Logic to execute after rendering
       console.log('Minimal theme after render');
     },
     
     'config:change': async (context: any, changes: any) => {
-      // 配置变更时的处理
+      // Handle configuration changes
       console.log('Minimal theme config changed:', changes);
       
       if (changes.styles?.theme) {
@@ -325,10 +349,23 @@ const theme: ModernTheme = {
   },
   
   templates: {
+    'company-homepage': {
+      name: 'CompanyHomepage',
+      displayName: 'Company Homepage',
+      layout: 'DefaultLayout',
+      blocks: [
+          {
+            type: 'block',
+            name: 'CompanyHomepage',
+            props: {}
+          }
+        ]
+    },
+    
     'blog-post': {
       name: 'Blog Post',
-      displayName: '博客文章',
-      description: '博客文章页面模板',
+      displayName: 'Blog Post',
+      description: 'Blog post page template',
       layout: 'PostLayout',
       blocks: [
           {
@@ -355,8 +392,8 @@ const theme: ModernTheme = {
     
     'home-page': {
       name: 'Home Page',
-      displayName: '首页',
-      description: '首页模板',
+      displayName: 'Homepage',
+    description: 'Homepage template',
       layout: 'DefaultLayout',
       blocks: [
           {
@@ -397,7 +434,7 @@ const theme: ModernTheme = {
 
 export default theme;
 
-// 导出组件供外部使用
+// Export components for external use
 export {
   DefaultLayout,
   PostLayout,
@@ -407,6 +444,6 @@ export {
   Navigation
 };
 
-// 导出工具函数
+// Export utility functions
 export * from './src/hooks';
 export * from './src/utils';

@@ -6,15 +6,30 @@ import PerformanceMonitor, { PerformanceOptimizationTips } from './components/Pe
 export default function Home() {
   // 获取主题组件
   const Header = useThemeComponent('block', 'Header')
-  const HeroSection = useThemeComponent('block', 'HeroSection')
-  const Features = useThemeComponent('block', 'Features')
-  const About = useThemeComponent('block', 'About')
+  const Hero = useThemeComponent('block', 'Hero')
   const Services = useThemeComponent('block', 'Services')
-  const Testimonials = useThemeComponent('block', 'Testimonials')
+  const About = useThemeComponent('block', 'About')
   const Contact = useThemeComponent('block', 'Contact')
   const Footer = useThemeComponent('block', 'Footer')
   
+  // 或者使用企业首页模板
+  const CompanyHomepage = useThemeComponent('block', 'CompanyHomepage')
   
+  
+  // 如果有完整的企业首页模板，直接使用
+  if (CompanyHomepage) {
+    return (
+      <div className="min-h-screen">
+        {/* Performance Monitoring */}
+        <PerformanceMonitor />
+        <PerformanceOptimizationTips />
+        
+        <CompanyHomepage />
+      </div>
+    );
+  }
+  
+  // 否则使用单独的组件组合
   return (
     <div className="min-h-screen">
       {/* Performance Monitoring */}
@@ -25,19 +40,13 @@ export default function Home() {
       {Header && <Header />}
       
       {/* Hero Section */}
-      {HeroSection && <HeroSection />}
-      
-      {/* Features Section */}
-      {Features && <Features />}
-      
-      {/* About Section */}
-      {About && <About />}
+      {Hero && <Hero />}
       
       {/* Services Section */}
       {Services && <Services />}
       
-      {/* Testimonials Section */}
-      {Testimonials && <Testimonials />}
+      {/* About Section */}
+      {About && <About />}
       
       {/* Contact Section */}
       {Contact && <Contact />}

@@ -1,16 +1,21 @@
+'use client'
 import React from 'react';
+import Header from '../blocks/Header';
+import Footer from '../blocks/Footer';
 
 interface DefaultLayoutProps {
   children: React.ReactNode;
   config?: any;
 }
 
-const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
+const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children, config }) => {
   return (
     <div className="default-layout">
-      <div className="layout-container">
+      <Header config={config} />
+      <main className="layout-container">
         {children}
-      </div>
+      </main>
+      <Footer config={config} />
     </div>
   );
 };
