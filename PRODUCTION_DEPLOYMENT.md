@@ -16,20 +16,40 @@
 
 ### 系统要求
 
-- **操作系统**: Linux (推荐 Ubuntu 20.04+ 或 CentOS 8+)
-- **内存**: 最低 2GB，推荐 4GB+
-- **存储**: 最低 20GB 可用空间
-- **网络**: 稳定的互联网连接
+- **操作系统**: AlmaLinux 8 64 Bit / CentOS 8+ / RHEL 8+
+- **内存**: 最少 4GB，推荐 8GB+
+- **存储**: 最少 50GB 可用空间
+- **网络**: 公网 IP 地址
+- **域名**: 已配置 DNS 解析
 
 ### 软件依赖
 
 ```bash
-# 安装 Podman
-sudo apt update
-sudo apt install -y podman
+# 更新系统包
+sudo dnf update -y
 
-# 安装 podman-compose
-pip3 install podman-compose
+# 安装基础工具
+sudo dnf install -y curl wget git unzip tar gzip
+
+# 安装 EPEL 仓库
+sudo dnf install -y epel-release
+
+# 安装 Podman
+sudo dnf install -y podman podman-compose
+
+# 安装 Node.js 18+
+curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
+sudo dnf install -y nodejs
+
+# 安装 PostgreSQL 客户端（用于备份）
+sudo dnf install -y postgresql
+
+# 安装 Nginx（可选，如果不使用容器化 Nginx）
+sudo dnf install -y nginx
+
+# 启用并启动必要服务
+sudo systemctl enable podman
+sudo systemctl start podman
 
 # 验证安装
 podman --version
@@ -177,13 +197,15 @@ chmod 600 nginx/ssl/*.pem
 ### 防火墙设置
 
 ```bash
-# 配置 UFW 防火墙
-sudo ufw enable
-sudo ufw allow ssh
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw deny 3000/tcp  # 禁止直接访问应用端口
-sudo ufw deny 6379/tcp  # 禁止直接访问 Redis
+# 配置 firewalld 防火墙
+sudo systemctl enable firewalld
+sudo systemctl start firewalld
+sudo firewall-cmd --permanent --add-service=ssh
+sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-service=https
+sudo firewall-cmd --permanent --remove-port=3000/tcp  # 禁止直接访问应用端口
+sudo firewall-cmd --permanent --remove-port=6379/tcp  # 禁止直接访问 Redis
+sudo firewall-cmd --reload
 ```
 
 ### 系统安全

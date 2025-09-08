@@ -67,4 +67,4 @@ MAILTO=admin@yourcompany.com
 0 7 * * * grep "authentication failed" /Users/yalehuang/Documents/dev/siteframe/logs/app.log | tail -20 | mail -s "登录失败报告" security@yourcompany.com 2>/dev/null || true
 
 # 每周检查系统更新
-0 6 * * 1 apt list --upgradable 2>/dev/null | mail -s "系统更新报告" admin@yourcompany.com || true
+0 6 * * 1 dnf check-update 2>/dev/null | mail -s "系统更新报告" admin@yourcompany.com || true
