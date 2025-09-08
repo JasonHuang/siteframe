@@ -1,0 +1,166 @@
+# ===========================================
+# SiteFrame 生产环境 Podman Compose 配置
+# ===========================================
+
+version: '3.8'
+
+services:
+  # ===========================================
+  # SiteFrame 应用服务
+  # ===========================================
+  siteframe-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: siteframe-app-prod
+    restart: unless-stopped
+    env_file: .env.production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+    networks:
+      - siteframe-network
+    volumes:
+      # 只挂载必要的数据目录
+      - app_uploads:/app/public/uploads
+      - app_logs:/app/logs
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # 安全配置
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache
+      - /app/.next/cache
+    # 用户权限
+    user: "1001:1001"
+    # 环境变量覆盖
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+
+  # ===========================================
+  # Redis 缓存服务
+  # ===========================================
+  redis:
+    image: redis:7-alpine
+    container_name: siteframe-redis-prod
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+    networks:
+      - siteframe-network
+    volumes:
+      - redis_data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    # 安全配置
+    security_opt:
+      - no-new-privileges:true
+    user: "999:999"
+
+  # ===========================================
+  # Nginx 反向代理 (可选)
+  # ===========================================
+  nginx:
+    image: nginx:alpine
+    container_name: siteframe-nginx-prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - siteframe-app
+    networks:
+      - siteframe-network
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    # 安全配置
+    security_opt:
+      - no-new-privileges:true
+
+# ===========================================
+# 网络配置
+# ===========================================
+networks:
+  siteframe-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# ===========================================
+# 数据卷配置
+# ===========================================
+volumes:
+  # 应用数据
+  app_uploads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/siteframe/uploads
+  
+  app_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/log/siteframe
+  
+  # Redis 数据
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/siteframe/redis
+  
+  # Nginx 日志
+  nginx_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/log/nginx

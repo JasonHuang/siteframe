@@ -1,6 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Next.js 13.4+ 默认启用 app directory，无需配置
+  output: 'standalone',
+  
+  // 生产环境性能优化
+  compress: true,
+  poweredByHeader: false,
+  generateEtags: true,
+  
+  // 实验性功能
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+  }, // 启用独立输出模式，用于容器化部署
   images: {
     domains: ['localhost'],
   },
