@@ -74,9 +74,10 @@ services:
 networks:
   siteframe-network:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.25.0.0/16
+    # 使用默认子网配置，让 Podman 自动分配
+    # ipam:
+    #   config:
+    #     - subnet: 172.25.0.0/16
 
 # ===========================================
 # 数据卷配置
