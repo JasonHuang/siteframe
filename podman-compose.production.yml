@@ -4,6 +4,9 @@
 
 version: '3.8'
 
+# 明确指定项目名称，避免使用目录名
+name: siteframe
+
 services:
   # ===========================================
   # SiteFrame 应用服务
@@ -15,7 +18,9 @@ services:
       target: runner
     container_name: siteframe-app-prod
     restart: unless-stopped
-    env_file: .env.production
+    env_file: 
+      - .env.production
+      - .env.production.local
     ports:
       - "12380:3000"
     depends_on:
