@@ -354,3 +354,5 @@ locales/build/
 .vscode/settings.json
 .vscode/launch.json
 .vscode/extensions.json
+
+res/

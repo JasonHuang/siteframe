@@ -44,8 +44,7 @@ sudo dnf install -y nodejs
 # 安装 PostgreSQL 客户端（用于备份）
 sudo dnf install -y postgresql
 
-# 安装 Nginx（可选，如果不使用容器化 Nginx）
-sudo dnf install -y nginx
+# 注意：使用宿主机 Caddy 作为反向代理，无需安装 Nginx
 
 # 启用并启动必要服务
 sudo systemctl enable podman
@@ -60,7 +59,7 @@ podman-compose --version
 
 - **Supabase**: 数据库服务
 - **域名**: 已配置的域名和 DNS
-- **SSL 证书**: Let's Encrypt 或其他 CA 证书
+- **Caddy**: 宿主机反向代理服务器（处理 SSL 证书）
 
 ## ⚡ 快速部署
 
@@ -165,31 +164,45 @@ SMTP_PASS="[SendGrid API Key]"
 SMTP_FROM="noreply@yourdomain.com"
 ```
 
-### SSL 证书配置
+### Caddy 反向代理配置
 
-#### 使用 Let's Encrypt
+#### Caddyfile 示例
 
-```bash
-# 安装 Certbot
-sudo apt install certbot
-
-# 获取证书
-sudo certbot certonly --standalone -d yourdomain.com -d www.yourdomain.com
-
-# 复制证书到项目目录
-sudo cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem nginx/ssl/cert.pem
-sudo cp /etc/letsencrypt/live/yourdomain.com/privkey.pem nginx/ssl/key.pem
-
-# 设置权限
-sudo chown $USER:$USER nginx/ssl/*.pem
-chmod 600 nginx/ssl/*.pem
+```caddy
+# /etc/caddy/Caddyfile
+yourdomain.com {
+    reverse_proxy localhost:3000
+    
+    # 自动 HTTPS（Let's Encrypt）
+    tls {
+        email your-email@example.com
+    }
+    
+    # 压缩
+    encode gzip
+    
+    # 日志
+    log {
+        output file /var/log/caddy/access.log
+    }
+}
 ```
 
-#### 自动续期
+#### 启动 Caddy
 
 ```bash
-# 添加到 crontab
-0 12 * * * /usr/bin/certbot renew --quiet && ./deploy-production.sh restart
+# 重新加载配置
+sudo systemctl reload caddy
+
+# 启动 Caddy 服务
+sudo systemctl start caddy
+sudo systemctl enable caddy
+
+# 查看状态
+sudo systemctl status caddy
+
+# 查看日志
+sudo journalctl -u caddy -f
 ```
 
 ## 🔒 安全配置
@@ -272,9 +285,9 @@ curl -f http://localhost:3000/api/health
 # 查看应用日志
 podman-compose -f podman-compose.production.yml logs siteframe-app
 
-# 查看 Nginx 日志
-tail -f /var/log/nginx/access.log
-tail -f /var/log/nginx/error.log
+# 查看 Caddy 日志
+sudo journalctl -u caddy -f
+tail -f /var/log/caddy/access.log
 
 # 查看系统日志
 journalctl -u podman
@@ -347,14 +360,20 @@ echo $DATABASE_URL
 psql $DATABASE_URL -c "SELECT 1;"
 ```
 
-#### 3. SSL 证书问题
+#### 3. Caddy 反向代理问题
 
 ```bash
-# 检查证书有效性
-openssl x509 -in nginx/ssl/cert.pem -text -noout
+# 检查 Caddy 状态
+sudo systemctl status caddy
+
+# 检查 Caddy 配置
+sudo caddy validate --config /etc/caddy/Caddyfile
 
 # 测试 HTTPS
 curl -I https://yourdomain.com
+
+# 查看 Caddy 错误日志
+sudo journalctl -u caddy --since "1 hour ago"
 ```
 
 #### 4. 性能问题

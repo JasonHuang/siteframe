@@ -111,9 +111,7 @@ backup_files() {
         "uploads"
         ".env.production"
         "podman-compose.production.yml"
-        "nginx/nginx.conf"
         "redis.conf"
-        "ssl"
     )
     
     local existing_files=()

@@ -78,7 +78,7 @@ setup_directories() {
     print_info "创建必要的目录..."
     
     sudo mkdir -p /var/lib/siteframe/{uploads,redis}
-    sudo mkdir -p /var/log/{siteframe,nginx}
+    sudo mkdir -p /var/log/siteframe
     sudo mkdir -p "$BACKUP_DIR"
     
     # 设置权限
@@ -88,22 +88,7 @@ setup_directories() {
     print_success "目录创建完成"
 }
 
-# 函数：生成 SSL 证书（自签名，生产环境请使用 Let's Encrypt）
-setup_ssl() {
-    print_info "设置 SSL 证书..."
-    
-    mkdir -p nginx/ssl
-    
-    if [ ! -f "nginx/ssl/cert.pem" ]; then
-        print_warning "生成自签名证书（生产环境请使用 Let's Encrypt）"
-        openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-            -keyout nginx/ssl/key.pem \
-            -out nginx/ssl/cert.pem \
-            -subj "/C=CN/ST=State/L=City/O=Organization/CN=yourdomain.com"
-    fi
-    
-    print_success "SSL 证书设置完成"
-}
+# 注意：SSL 证书由宿主机 Caddy 管理，无需在容器中配置
 
 # 函数：构建应用
 build_app() {
@@ -279,7 +264,6 @@ main() {
             check_dependencies
             check_environment
             setup_directories
-            setup_ssl
             build_app
             deploy
             ;;

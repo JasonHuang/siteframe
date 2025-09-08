@@ -46,12 +46,7 @@ MAILTO=admin@yourcompany.com
 0 4 * * 0 find /Users/yalehuang/Documents/dev/siteframe/logs -name "*.log.gz" -mtime +30 -delete 2>/dev/null
 
 # ===========================================
-# SSL 证书检查任务
-# ===========================================
-
-# 每天检查 SSL 证书有效期
-0 8 * * * openssl x509 -in /Users/yalehuang/Documents/dev/siteframe/ssl/cert.pem -noout -checkend 2592000 || echo "$(date): SSL 证书将在 30 天内过期" | mail -s "SSL 证书过期警告" admin@yourcompany.com
-
+# 注意：SSL 证书由宿主机 Caddy 管理
 # ===========================================
 # 数据库维护任务
 # ===========================================

@@ -93,32 +93,8 @@ services:
     user: "999:999"
 
   # ===========================================
-  # Nginx 反向代理 (可选)
+  # 注意：Nginx 已移除，使用宿主机 Caddy 作为反向代理
   # ===========================================
-  nginx:
-    image: nginx:alpine
-    container_name: siteframe-nginx-prod
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
-      - nginx_logs:/var/log/nginx
-    depends_on:
-      - siteframe-app
-    networks:
-      - siteframe-network
-    # 健康检查
-    healthcheck:
-      test: ["CMD", "nginx", "-t"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-    # 安全配置
-    security_opt:
-      - no-new-privileges:true
 
 # ===========================================
 # 网络配置
@@ -156,11 +132,3 @@ volumes:
       type: none
       o: bind
       device: /var/lib/siteframe/redis
-  
-  # Nginx 日志
-  nginx_logs:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /var/log/nginx
