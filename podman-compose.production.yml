@@ -23,8 +23,8 @@ services:
       - .env.production.local
     ports:
       - "12380:3000"
-    depends_on:
-      - redis
+    # depends_on:
+      # - redis
     networks:
       - siteframe-network
     volumes:
@@ -62,40 +62,7 @@ services:
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
 
-  # ===========================================
-  # Redis 缓存服务
-  # ===========================================
-  redis:
-    image: redis:7-alpine
-    container_name: siteframe-redis-prod
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:6379:6379"
-    networks:
-      - siteframe-network
-    volumes:
-      - redis_data:/data
-      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
-    command: redis-server /usr/local/etc/redis/redis.conf
-    # 资源限制
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-          cpus: '0.25'
-        reservations:
-          memory: 128M
-          cpus: '0.1'
-    # 健康检查
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-    # 安全配置
-    security_opt:
-      - no-new-privileges:true
-    user: "999:999"
+  # Redis 服务已移除 - 项目暂时不使用缓存
 
   # ===========================================
   # 注意：Nginx 已移除，使用宿主机 Caddy 作为反向代理
@@ -109,7 +76,7 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.0.0/16
+        - subnet: 172.25.0.0/16
 
 # ===========================================
 # 数据卷配置
@@ -130,10 +97,4 @@ volumes:
       o: bind
       device: /var/log/siteframe
   
-  # Redis 数据
-  redis_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /var/lib/siteframe/redis
+  # Redis 数据卷已移除
